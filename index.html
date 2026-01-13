@@ -16,6 +16,16 @@
     }
     .animate-slide-up { animation: slideUp 0.3s ease-out; }
     .animate-slide-right { animation: slideRight 0.3s ease-out; }
+    
+    /* แก้ปัญหาปุ่มกดไม่ได้ */
+    #cart-drawer > div:first-child {
+      pointer-events: auto;
+    }
+    #cart-drawer > div:last-child {
+      pointer-events: auto;
+      position: relative;
+      z-index: 10;
+    }
   </style>
 </head>
 <body class="bg-orange-50">
@@ -131,7 +141,7 @@
 
 <script>
 // === ตั้งค่า LINE ID ของร้านตรงนี้ ===
-const LINE_OA_ID = '@570uqhbl'; // ⬅️ แก้ตรงนี้
+const LINE_OA_ID = '@570uqhbl'; // ⬅️ แก้เป็น LINE OA ID จริงของร้าน (เช่น @abc1234)
 
 // === ข้อมูลเมนู ===
 const MENU_ITEMS = [
