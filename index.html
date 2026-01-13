@@ -36,10 +36,9 @@
     <p class="text-orange-600 text-xs mt-1">⏰ เปิดบริการทุกวัน 10.00 - 21.00 น.</p>
   </div>
    
-  <!-- Category Filter (ลบ scrollbar-hide ออกเพื่อให้เห็นแถบเลื่อน) -->
+  <!-- Category Filter (เรียงลำดับใหม่) -->
   <div class="flex gap-2 overflow-x-auto pb-4 mb-4">
     <button onclick="filterCategory('all')" class="category-btn active px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-orange-500 text-white" data-category="all">🍽️ ทั้งหมด</button>
-    <button onclick="filterCategory('drink')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="drink">🥤 เครื่องดื่ม</button>
     <button onclick="filterCategory('rice')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="rice">🍚 ข้าวราด</button>
     <button onclick="filterCategory('noodle')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="noodle">🍜 เส้น/สุกี้</button>
     <button onclick="filterCategory('porridge')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="porridge">🍲 ข้าวต้ม</button>
@@ -47,6 +46,7 @@
     <button onclick="filterCategory('somtum')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="somtum">🥗 ส้มตำ</button>
     <button onclick="filterCategory('yum')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="yum">🥢 ยำ</button>
     <button onclick="filterCategory('snack')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="snack">🍗 ทานเล่น</button>
+    <button onclick="filterCategory('drink')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="drink">🥤 เครื่องดื่ม</button>
   </div>
    
   <!-- Menu Count -->
@@ -87,7 +87,7 @@
     <!-- Action Section -->
     <div class="mt-4 pb-2 border-t pt-4">
       <h3 class="text-center text-lg font-bold text-gray-800 mb-3">สั่งเลยตอนนี้ 👇</h3>
-      <a href="#" target="_blank" class="block w-full bg-green-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-green-600 transition-colors shadow-lg shadow-green-200 flex items-center justify-center gap-2 transform active:scale-95">
+      <a href="https://lin.ee/7CkR7Jt" target="_blank" class="block w-full bg-green-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-green-600 transition-colors shadow-lg shadow-green-200 flex items-center justify-center gap-4 transform active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.2-9.91 9.42 0 4.67 3.63 8.6 8.5 9.3-.25.85-.75 2.5-2.2 3.3 0 0 2.9.27 5.75-2.1l.66.04c5.46 0 9.91-4.2 9.91-9.42C24.75 7.15 19.05 2 12.04 2z"/></svg>
         แชทหาเรา
       </a>
@@ -99,25 +99,7 @@
 <script>
 // === MENU DATA - ครัวคอนโด 95 รายการ ===
 const MENU_ITEMS = [
-  // 🥤 หมวด 1: เครื่องดื่ม (16 รายการ)
-  { id: 1, name: 'เนสกาแฟ (Nescafe)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/nescafe.jpg' },
-  { id: 2, name: 'กาแฟโบราณ (Thai Coffee Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/thai-coffee.jpg' },
-  { id: 3, name: 'โอเลี้ยง (Thai Coffee Iced)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/oliang.jpg' },
-  { id: 4, name: 'ชานมไต้หวัน (Taiwan Milk Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/taiwan-milk-tea.jpg' },
-  { id: 5, name: 'โกโก้ (Cocoa)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/cocoa.jpg' },
-  { id: 6, name: 'โอวัลติน (Ovaltine)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/ovaltine.jpg' },
-  { id: 7, name: 'ชาไทย (Thai Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/thai-tea.jpg' },
-  { id: 8, name: 'ชาเขียว (Green Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-tea.jpg' },
-  { id: 9, name: 'นมชมพู (Pink Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/pink-milk.jpg' },
-  { id: 10, name: 'นมเขียว (Green Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-milk.jpg' },
-  { id: 11, name: 'นมเผือก (Taro Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/taro-milk.jpg' },
-  { id: 12, name: 'นมสด (Fresh Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/fresh-milk.jpg' },
-  { id: 13, name: 'ชามะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/lemon-tea.jpg' },
-  { id: 14, name: 'ชาเขียวมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/lemon-green-tea.jpg' },
-  { id: 15, name: 'แดงมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/red-syrup.jpg' },
-  { id: 16, name: 'เขียวมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-syrup.jpg' },
-
-  // 🍚 หมวด 2: ข้าวกระเพรา & ข้าวราด (30 รายการ)
+  // 🍚 หมวด 2 (เดิม): ข้าวกระเพรา & ข้าวราด (30 รายการ) -> ย้ายมาลำดับที่ 1
   { id: 17, name: 'ข้าวกระเพราเนื้อสับ ⭐', price: '75', category: 'rice', imageUrl: 'https://example.com/images/beef-basil.jpg' },
   { id: 18, name: 'ข้าวกระเพราหมูกรอบ', price: '75', category: 'rice', imageUrl: 'https://example.com/images/crispy-pork-basil.jpg' },
   { id: 19, name: 'ข้าวกระเพราเอ็นไก่', price: '75', category: 'rice', imageUrl: 'https://example.com/images/chicken-tendon-basil.jpg' },
@@ -209,6 +191,24 @@ const MENU_ITEMS = [
   { id: 93, name: 'หมูกรอบน้ำจิ้มซีฟู้ด', price: 'S=95 / M=140 / L=250', category: 'snack', imageUrl: 'https://example.com/images/crispy-pork-seafood.jpg' },
   { id: 94, name: 'สามชั้นทอดน้ำปลา', price: 'S=95 / M=140 / L=250', category: 'snack', imageUrl: 'https://example.com/images/pork-belly-fried.jpg' },
   { id: 95, name: 'ทอดมันกุ้ง', price: '129', category: 'snack', imageUrl: 'https://example.com/images/shrimp-cake.jpg' },
+
+  // 🥤 หมวด 1 (เดิม): เครื่องดื่ม (16 รายการ) -> ย้ายมาท้ายสุด
+  { id: 1, name: 'เนสกาแฟ (Nescafe)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/nescafe.jpg' },
+  { id: 2, name: 'กาแฟโบราณ (Thai Coffee Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/thai-coffee.jpg' },
+  { id: 3, name: 'โอเลี้ยง (Thai Coffee Iced)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/oliang.jpg' },
+  { id: 4, name: 'ชานมไต้หวัน (Taiwan Milk Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/taiwan-milk-tea.jpg' },
+  { id: 5, name: 'โกโก้ (Cocoa)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/cocoa.jpg' },
+  { id: 6, name: 'โอวัลติน (Ovaltine)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/ovaltine.jpg' },
+  { id: 7, name: 'ชาไทย (Thai Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/thai-tea.jpg' },
+  { id: 8, name: 'ชาเขียว (Green Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-tea.jpg' },
+  { id: 9, name: 'นมชมพู (Pink Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/pink-milk.jpg' },
+  { id: 10, name: 'นมเขียว (Green Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-milk.jpg' },
+  { id: 11, name: 'นมเผือก (Taro Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/taro-milk.jpg' },
+  { id: 12, name: 'นมสด (Fresh Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/fresh-milk.jpg' },
+  { id: 13, name: 'ชามะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/lemon-tea.jpg' },
+  { id: 14, name: 'ชาเขียวมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/lemon-green-tea.jpg' },
+  { id: 15, name: 'แดงมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/red-syrup.jpg' },
+  { id: 16, name: 'เขียวมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-syrup.jpg' },
 ];
 
 const CATEGORY_NAMES = {
@@ -249,7 +249,7 @@ function renderMenu() {
    
   grid.innerHTML = filteredItems.map(item => `
     <div onclick="openModal(${item.id})" class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all hover:scale-[1.02] overflow-hidden cursor-pointer border border-gray-100 flex flex-col">
-      <div class="aspect-[4/3] w-full bg-orange-50 relative overflow-hidden">
+      <div class="aspect-square w-full bg-orange-50 relative overflow-hidden">
         <!-- Image with fallback -->
         <img src="${item.imageUrl}" 
              alt="${item.name}" 
