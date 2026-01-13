@@ -1,0 +1,372 @@
+import React, { useState, useMemo } from 'react';
+import { ShoppingCart, X, Plus, Minus, ChefHat, Coffee, Trash2, Send } from 'lucide-react';
+
+// --- ตั้งค่า LINE ID ของร้านค้าตรงนี้ ---
+// ใส่ ID ของ LINE OA ร้านคุณ (อย่าลืมใส่ @ ด้านหน้า)
+const LINE_OA_ID = '@YOUR_LINE_ID'; 
+
+// --- ข้อมูลเมนู 21 รายการ ---
+const MENU_ITEMS = [
+  // หมวดกาแฟ
+  { id: 1, name: 'เนสกาแฟ (Nescafe)', price: 29, category: 'Coffee' },
+  { id: 2, name: 'กาแฟโบราณ (Thai Coffee Milk)', price: 29, category: 'Coffee' },
+  { id: 3, name: 'โอเลี้ยง (Thai Coffee Iced)', price: 29, category: 'Coffee' },
+  
+  // หมวดชานม/ชา
+  { id: 4, name: 'ชานมไต้หวัน (Taiwan Milk Tea)', price: 29, category: 'Tea' },
+  { id: 5, name: 'ชาไทย (Thai Tea)', price: 29, category: 'Tea' },
+  { id: 6, name: 'ชาเขียว (Green Tea)', price: 29, category: 'Tea' },
+  
+  // หมวดนม/โกโก้
+  { id: 7, name: 'โกโก้ (Cocoa)', price: 29, category: 'Milk' },
+  { id: 8, name: 'โอวัลติน (Ovaltine)', price: 29, category: 'Milk' },
+  { id: 9, name: 'นมชมพู (Pink Milk)', price: 29, category: 'Milk' },
+  { id: 10, name: 'นมเขียว (Green Milk)', price: 29, category: 'Milk' },
+  { id: 11, name: 'นมเผือก (Taro Milk)', price: 29, category: 'Milk' },
+  { id: 12, name: 'นมสด (Fresh Milk)', price: 29, category: 'Milk' },
+
+  // หมวดมะนาว/สดชื่น
+  { id: 13, name: 'ชามะนาว (Lemon Thai Tea)', price: 29, category: 'Tea' },
+  { id: 14, name: 'ชาเขียวมะนาว (Lemon Green Tea)', price: 29, category: 'Tea' },
+  { id: 15, name: 'แดงมะนาว (Lemon Red Syrup)', price: 29, category: 'Refreshment' },
+  { id: 16, name: 'เขียวมะนาว (Lemon Green Syrup)', price: 29, category: 'Refreshment' },
+
+  // หมวดน้ำอัดลม
+  { id: 17, name: 'โค้ก (Coca-Cola)', price: 25, category: 'Soft Drink' },
+  { id: 18, name: 'แฟนต้า ส้ม (Fanta Orange)', price: 25, category: 'Soft Drink' },
+  { id: 19, name: 'แฟนต้า แดง (Fanta Red)', price: 25, category: 'Soft Drink' },
+  { id: 20, name: 'สไปร์ท (Sprite)', price: 25, category: 'Soft Drink' },
+  { id: 21, name: 'น้ำเขียว (Green Soda)', price: 25, category: 'Soft Drink' },
+];
+
+// --- ตัวเลือกความหวาน ---
+const SWEETNESS_LEVELS = [
+  { label: 'หวานมาก 100%', value: '100%' },
+  { label: 'หวานปกติ 70%', value: '70%' },
+  { label: 'หวานน้อย 50%', value: '50%' },
+  { label: 'ไม่หวาน 0%', value: '0%' },
+];
+
+export default function App() {
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null); 
+  const [sweetness, setSweetness] = useState('70%');
+  const [quantity, setQuantity] = useState(1);
+
+  // เปิด Modal เลือกสินค้า
+  const openModal = (item) => {
+    setSelectedItem(item);
+    // ถ้าเป็นน้ำอัดลม ไม่ต้องมี default หวาน
+    setSweetness('70%');
+    setQuantity(1);
+  };
+
+  const closeModal = () => {
+    setSelectedItem(null);
+  };
+
+  const addToCart = () => {
+    if (!selectedItem) return;
+
+    // เช็คว่าเมนูหมวดไหนต้องเลือกความหวานบ้าง (น้ำอัดลมไม่ต้อง)
+    const needsSweetness = selectedItem.category !== 'Soft Drink';
+
+    const newItem = {
+      ...selectedItem,
+      cartId: Date.now(), 
+      sweetness: needsSweetness ? sweetness : null, // ถ้าน้ำอัดลม sweetness เป็น null
+      quantity,
+    };
+
+    setCart([...cart, newItem]);
+    closeModal();
+  };
+
+  const removeFromCart = (cartId) => {
+    setCart(cart.filter((item) => item.cartId !== cartId));
+  };
+
+  const totalPrice = useMemo(() => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  }, [cart]);
+
+  const totalItems = useMemo(() => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  }, [cart]);
+
+  // --- ฟังก์ชันส่งออเดอร์ไป LINE ---
+  const sendOrderToLine = () => {
+    if (cart.length === 0) return;
+
+    // 1. สร้างข้อความสรุปรายการ
+    let message = "🛒 ขอสั่งเครื่องดื่มครับ/ค่ะ \n\n";
+    
+    cart.forEach((item, index) => {
+      message += `${index + 1}. ${item.name}`;
+      if (item.sweetness) {
+        message += ` (หวาน ${item.sweetness})`;
+      }
+      message += `\n   x ${item.quantity} = ${item.price * item.quantity} บาท\n`;
+    });
+
+    message += `\n💰 ยอดรวมทั้งหมด: ${totalPrice} บาท`;
+    message += `\n\n----------------------------`;
+    message += `\n(รบกวนแจ้งเบอร์โทร หรือที่อยู่จัดส่งต่อได้เลยครับ)`;
+
+    // 2. สร้างลิงก์สำหรับเปิด LINE และพิมพ์ข้อความ
+    // ใช้ URL Scheme ของ LINE: https://line.me/R/oaMessage/{LINE_ID}/?{text}
+    // หมายเหตุ: @ ด้านหน้า ID จำเป็นต้องตัดออกในบางกรณี แต่สำหรับ oaMessage ใส่ไว้ปลอดภัยกว่า หรือลองเช็ค doc ถ้าไม่ได้ให้เอา @ ออก
+    
+    // Encode ข้อความให้เป็น URL format
+    const encodedMessage = encodeURIComponent(message);
+    
+    // สร้างลิงก์ (Deep Link)
+    const lineUrl = `https://line.me/R/oaMessage/${LINE_OA_ID}/?${encodedMessage}`;
+
+    // 3. เปิดลิงก์
+    window.location.href = lineUrl;
+  };
+
+  return (
+    <div className="min-h-screen bg-orange-50 font-sans text-gray-800">
+      
+      {/* --- Header --- */}
+      <header className="sticky top-0 z-40 bg-white shadow-sm px-4 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="bg-orange-500 p-2 rounded-full text-white">
+            <Coffee size={24} />
+          </div>
+          <h1 className="text-xl font-bold text-orange-800">My Cafe Menu</h1>
+        </div>
+        
+        <button 
+          onClick={() => setIsCartOpen(true)}
+          className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <ShoppingCart size={24} className="text-gray-600" />
+          {totalItems > 0 && (
+            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+              {totalItems}
+            </span>
+          )}
+        </button>
+      </header>
+
+      {/* --- Main Content --- */}
+      <main className="container mx-auto max-w-2xl px-4 py-6 pb-24">
+        
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">เลือกเมนูเครื่องดื่ม</h2>
+          <p className="text-gray-500">สดชื่น อร่อย ถูกใจ สั่งเลย!</p>
+        </div>
+
+        {/* Menu Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-4">
+          {MENU_ITEMS.map((item) => (
+            <div 
+              key={item.id} 
+              onClick={() => openModal(item)}
+              className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer border border-gray-100 flex flex-col"
+            >
+              {/* Image Placeholder */}
+              <div className="aspect-square bg-gray-200 w-full flex items-center justify-center text-gray-400 relative">
+                 <div className="text-center">
+                   <Coffee size={32} className="mx-auto mb-1 opacity-50"/>
+                   <span className="text-xs">รูปสินค้า</span>
+                 </div>
+                 {/* Badge example */}
+                 {item.category === 'Soft Drink' && (
+                   <span className="absolute top-2 right-2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                     เย็นซ่า
+                   </span>
+                 )}
+              </div>
+
+              <div className="p-3 flex flex-col flex-grow">
+                <h3 className="font-semibold text-gray-800 line-clamp-2 mb-1 leading-snug text-sm">{item.name}</h3>
+                <div className="mt-auto flex justify-between items-center pt-2">
+                  <span className="text-orange-600 font-bold text-lg">{item.price}.-</span>
+                  <button className="bg-orange-100 text-orange-600 p-1.5 rounded-lg hover:bg-orange-200 transition-colors">
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      {/* --- Product Modal (Popup) --- */}
+      {selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/40 pointer-events-auto transition-opacity"
+            onClick={closeModal}
+          ></div>
+          
+          {/* Modal Content */}
+          <div className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 shadow-xl pointer-events-auto transform transition-transform animate-in slide-in-from-bottom duration-200">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 pr-4">{selectedItem.name}</h3>
+                <p className="text-orange-600 font-bold text-lg">{selectedItem.price} บาท</p>
+              </div>
+              <button onClick={closeModal} className="p-1 bg-gray-100 rounded-full hover:bg-gray-200 flex-shrink-0">
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Sweetness Selection (ซ่อนถ้าน้ำอัดลม) */}
+            {selectedItem.category !== 'Soft Drink' && (
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-700 mb-3 text-sm">เลือกระดับความหวาน</h4>
+                <div className="space-y-2">
+                  {SWEETNESS_LEVELS.map((level) => (
+                    <label 
+                      key={level.value}
+                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                        sweetness === level.value 
+                          ? 'border-orange-500 bg-orange-50 text-orange-700' 
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="text-sm font-medium">{level.label}</span>
+                      <input 
+                        type="radio" 
+                        name="sweetness" 
+                        value={level.value}
+                        checked={sweetness === level.value}
+                        onChange={(e) => setSweetness(e.target.value)}
+                        className="w-4 h-4 text-orange-600 accent-orange-600 focus:ring-orange-500"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quantity */}
+            <div className="flex items-center justify-between mb-6 bg-gray-50 p-3 rounded-lg">
+              <span className="font-semibold text-gray-700">จำนวน</span>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white border shadow-sm text-gray-600 active:scale-95 transition-transform"
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="font-bold text-lg w-6 text-center">{quantity}</span>
+                <button 
+                  onClick={() => setQuantity(q => q + 1)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-500 text-white shadow-sm active:scale-95 transition-transform"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Add Button */}
+            <button 
+              onClick={addToCart}
+              className="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-orange-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              เพิ่มลงตะกร้า — {(selectedItem.price * quantity)}.-
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* --- Cart Drawer / Summary --- */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end pointer-events-none">
+          <div 
+            className="absolute inset-0 bg-black/20 pointer-events-auto"
+            onClick={() => setIsCartOpen(false)}
+          ></div>
+          <div className="w-full max-w-md bg-white h-full shadow-2xl pointer-events-auto flex flex-col transform transition-transform animate-in slide-in-from-right">
+            <div className="p-4 border-b flex justify-between items-center bg-orange-50">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <ShoppingCart size={20} /> ตะกร้าสินค้า
+              </h2>
+              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-orange-100 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {cart.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                  <ChefHat size={48} className="mb-2 opacity-50" />
+                  <p>ยังไม่มีรายการสินค้า</p>
+                </div>
+              ) : (
+                cart.map((item) => (
+                  <div key={item.cartId} className="flex gap-3 border-b border-gray-100 pb-3">
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Coffee size={20} className="text-gray-400"/>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-bold text-gray-800 text-sm">{item.name}</h4>
+                        <button 
+                          onClick={() => removeFromCart(item.cartId)}
+                          className="text-gray-400 hover:text-red-500"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      {item.sweetness && (
+                        <p className="text-xs text-gray-500 mt-1">หวาน: {item.sweetness}</p>
+                      )}
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">x{item.quantity}</span>
+                        <span className="font-bold text-orange-600">{item.price * item.quantity}.-</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer Total & Send to LINE */}
+            {cart.length > 0 && (
+              <div className="p-4 border-t bg-gray-50">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-gray-600">ยอดรวมทั้งหมด</span>
+                  <span className="text-2xl font-bold text-orange-600">{totalPrice}.-</span>
+                </div>
+                
+                <button 
+                  onClick={sendOrderToLine}
+                  className="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Send size={20} />
+                  ยืนยันออเดอร์ (ส่งทางไลน์)
+                </button>
+                <p className="text-xs text-center text-gray-400 mt-2">
+                  *ระบบจะเปิดแอป LINE เพื่อส่งรายการให้ทางร้าน
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Floating Cart Button (Mobile) */}
+      {!isCartOpen && totalItems > 0 && (
+        <div className="fixed bottom-6 right-6 z-40">
+           <button 
+            onClick={() => setIsCartOpen(true)}
+            className="bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-transform hover:scale-105 flex items-center gap-2"
+          >
+            <ShoppingCart size={24} />
+            <span className="font-bold">{totalItems}</span>
+          </button>
+        </div>
+      )}
+
+    </div>
+  );
+}
