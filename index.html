@@ -3,915 +3,332 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Cafe Menu</title>
+  <title>ครัวคอนโดเมนู</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @keyframes slideUp {
       from { transform: translateY(100%); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-    @keyframes slideRight {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    @keyframes checkmark {
-      0% { transform: scale(0); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
     .animate-slide-up { animation: slideUp 0.3s ease-out; }
-    .animate-slide-right { animation: slideRight 0.3s ease-out; }
-    .animate-pulse-slow { animation: pulse 2s infinite; }
-    .animate-checkmark { animation: checkmark 0.5s ease-out; }
-    
-    #cart-drawer > div:first-child { pointer-events: auto; }
-    #cart-drawer > div:last-child { pointer-events: auto; position: relative; z-index: 10; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-orange-50">
+<body class="bg-orange-50 min-h-screen">
 
 <!-- Header -->
-<header class="sticky top-0 z-40 bg-white shadow-sm px-4 py-3 flex justify-between items-center">
+<header class="sticky top-0 z-40 bg-white shadow-sm px-4 py-3 flex justify-center items-center">
   <div class="flex items-center gap-2">
     <div class="bg-orange-500 p-2 rounded-full text-white">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
     </div>
-    <h1 class="text-xl font-bold text-orange-800">My Cafe Menu</h1>
+    <h1 class="text-xl font-bold text-orange-800">ครัวคอนโดเมนู</h1>
   </div>
-  
-  <button onclick="toggleCart()" class="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-    <span id="cart-badge" class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
-  </button>
 </header>
 
-<!-- Main Content - Menu Page -->
-<main id="menu-page" class="container mx-auto max-w-2xl px-4 py-6 pb-24">
-  <div class="mb-6 text-center">
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">เลือกเมนูเครื่องดื่ม</h2>
-    <p class="text-gray-500">สดชื่น อร่อย ถูกใจ สั่งเลย!</p>
+<!-- Main Content -->
+<main class="container mx-auto max-w-2xl px-4 py-6 pb-12">
+  <div class="mb-4 text-center">
+    <h2 class="text-2xl font-bold text-gray-800 mb-1">เมนูอาหาร</h2>
+    <p class="text-gray-500 text-sm">กดที่เมนูเพื่อดูรูปภาพ</p>
+    <p class="text-orange-600 text-xs mt-1">⏰ เปิดบริการทุกวัน 10.00 - 21.00 น.</p>
   </div>
-  <div id="menu-grid" class="grid grid-cols-2 gap-4"></div>
+  
+  <!-- Category Filter -->
+  <div class="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+    <button onclick="filterCategory('all')" class="category-btn active px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-orange-500 text-white" data-category="all">🍽️ ทั้งหมด</button>
+    <button onclick="filterCategory('drink')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="drink">🥤 เครื่องดื่ม</button>
+    <button onclick="filterCategory('rice')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="rice">🍚 ข้าวราด</button>
+    <button onclick="filterCategory('noodle')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="noodle">🍜 เส้น/สุกี้</button>
+    <button onclick="filterCategory('porridge')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="porridge">🍲 ข้าวต้ม</button>
+    <button onclick="filterCategory('soup')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="soup">🥣 ต้ม/แกง</button>
+    <button onclick="filterCategory('somtum')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="somtum">🥗 ส้มตำ</button>
+    <button onclick="filterCategory('yum')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="yum">🥢 ยำ</button>
+    <button onclick="filterCategory('snack')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="snack">🍗 ทานเล่น</button>
+  </div>
+  
+  <!-- Menu Count -->
+  <div class="mb-4 text-center">
+    <span id="menu-count" class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full">แสดง 95 รายการ</span>
+  </div>
+  
+  <div id="menu-grid" class="grid grid-cols-2 gap-3"></div>
 </main>
 
-<!-- Checkout Page - Delivery Selection -->
-<div id="checkout-page" class="hidden container mx-auto max-w-2xl px-4 py-6 pb-24">
-  <div class="mb-6">
-    <button onclick="goBackToMenu()" class="flex items-center gap-2 text-gray-600 hover:text-orange-600 mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-      กลับไปเลือกเมนู
-    </button>
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">เลือกสถานที่รับสินค้า</h2>
-    <p class="text-gray-500">กรุณาเลือกว่าจะรับสินค้าที่ไหน</p>
-  </div>
-
-  <!-- Order Summary -->
-  <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
-    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
-      สรุปรายการสั่งซื้อ
-    </h3>
-    <div id="checkout-items" class="space-y-2 text-sm"></div>
-    <div class="border-t mt-3 pt-3 flex justify-between items-center">
-      <span class="font-bold text-gray-700">ยอดรวมทั้งหมด</span>
-      <span id="checkout-total" class="text-xl font-bold text-orange-600">0.-</span>
-    </div>
-  </div>
-
-  <!-- Delivery Options -->
-  <div class="space-y-4">
-    <!-- Option 1: Building A -->
-    <div class="bg-white rounded-xl p-4 shadow-sm border-2 border-transparent hover:border-orange-200 transition-all cursor-pointer" onclick="selectDeliveryOption('buildingA')">
-      <label class="flex items-start gap-3 cursor-pointer">
-        <input type="radio" name="delivery" value="buildingA" class="mt-1 w-5 h-5 text-orange-600">
-        <div class="flex-1">
-          <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
-            <span class="font-bold text-gray-800">ตึก A - ส่งถึงห้อง</span>
-          </div>
-          <p class="text-sm text-gray-500 mt-1">พนักงานจะนำส่งถึงห้องของคุณ</p>
-          <div id="buildingA-details" class="hidden mt-3 space-y-3">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">ชั้น</label>
-              <select id="buildingA-floor" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
-                <option value="">-- เลือกชั้น --</option>
-                <option value="1">ชั้น 1</option>
-                <option value="2">ชั้น 2</option>
-                <option value="3">ชั้น 3</option>
-                <option value="4">ชั้น 4</option>
-                <option value="5">ชั้น 5</option>
-                <option value="6">ชั้น 6</option>
-                <option value="7">ชั้น 7</option>
-                <option value="8">ชั้น 8</option>
-                <option value="9">ชั้น 9</option>
-                <option value="10">ชั้น 10</option>
-                <option value="11">ชั้น 11</option>
-                <option value="12">ชั้น 12</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">เลขห้อง</label>
-              <input type="text" id="buildingA-room" placeholder="เช่น 101, 205" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
-            </div>
-          </div>
-        </div>
-      </label>
-    </div>
-
-    <!-- Option 2: Building B -->
-    <div class="bg-white rounded-xl p-4 shadow-sm border-2 border-transparent hover:border-orange-200 transition-all cursor-pointer" onclick="selectDeliveryOption('buildingB')">
-      <label class="flex items-start gap-3 cursor-pointer">
-        <input type="radio" name="delivery" value="buildingB" class="mt-1 w-5 h-5 text-orange-600">
-        <div class="flex-1">
-          <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
-            <span class="font-bold text-gray-800">ตึก B - ส่งถึงห้อง</span>
-          </div>
-          <p class="text-sm text-gray-500 mt-1">พนักงานจะนำส่งถึงห้องของคุณ</p>
-          <div id="buildingB-details" class="hidden mt-3 space-y-3">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">ชั้น</label>
-              <select id="buildingB-floor" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
-                <option value="">-- เลือกชั้น --</option>
-                <option value="1">ชั้น 1</option>
-                <option value="2">ชั้น 2</option>
-                <option value="3">ชั้น 3</option>
-                <option value="4">ชั้น 4</option>
-                <option value="5">ชั้น 5</option>
-                <option value="6">ชั้น 6</option>
-                <option value="7">ชั้น 7</option>
-                <option value="8">ชั้น 8</option>
-                <option value="9">ชั้น 9</option>
-                <option value="10">ชั้น 10</option>
-                <option value="11">ชั้น 11</option>
-                <option value="12">ชั้น 12</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">เลขห้อง</label>
-              <input type="text" id="buildingB-room" placeholder="เช่น 101, 205" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
-            </div>
-          </div>
-        </div>
-      </label>
-    </div>
-
-    <!-- Option 3: Pickup -->
-    <div class="bg-white rounded-xl p-4 shadow-sm border-2 border-transparent hover:border-orange-200 transition-all cursor-pointer" onclick="selectDeliveryOption('pickup')">
-      <label class="flex items-start gap-3 cursor-pointer">
-        <input type="radio" name="delivery" value="pickup" class="mt-1 w-5 h-5 text-orange-600">
-        <div class="flex-1">
-          <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/><path d="M12 3v6"/></svg>
-            <span class="font-bold text-gray-800">รับที่หน้าร้าน</span>
-          </div>
-          <p class="text-sm text-gray-500 mt-1">ลงมารับด้วยตนเองที่หน้าร้าน</p>
-        </div>
-      </label>
-    </div>
-  </div>
-
-  <!-- Continue Button -->
-  <button id="continue-to-payment" onclick="goToPayment()" class="w-full mt-6 bg-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-orange-700 active:scale-95 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
-    ดำเนินการชำระเงิน
-  </button>
-</div>
-
-<!-- Payment Page - QR Code -->
-<div id="payment-page" class="hidden container mx-auto max-w-2xl px-4 py-6 pb-24">
-  <div class="text-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">ชำระเงิน</h2>
-    <p class="text-gray-500">สแกน QR Code เพื่อชำระเงิน</p>
-  </div>
-
-  <!-- Timer Warning -->
-  <div id="timer-warning" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-    <div class="flex items-center justify-center gap-2 text-red-600">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span class="font-bold">QR Code หมดอายุใน</span>
-      <span id="countdown" class="text-2xl font-bold animate-pulse-slow">05:00</span>
-    </div>
-  </div>
-
-  <!-- QR Code Display -->
-  <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
-    <div class="flex flex-col items-center">
-      <!-- QR Code Placeholder - Replace with actual PromptPay QR -->
-      <div id="qr-container" class="bg-gray-100 p-4 rounded-xl mb-4">
-        <div class="w-48 h-48 bg-white flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
-          <!-- This would be replaced with actual QR code image -->
-          <div class="text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-400 mb-2"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
-            <p class="text-xs text-gray-400">QR PromptPay</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Payment Info -->
-      <div class="text-center mb-4">
-        <p class="text-sm text-gray-500">ยอดชำระ</p>
-        <p id="payment-amount" class="text-3xl font-bold text-orange-600">0.-</p>
-      </div>
-
-      <!-- Bank Info -->
-      <div class="bg-gray-50 rounded-lg p-3 w-full text-center">
-        <p class="text-sm text-gray-600">พร้อมเพย์: <span class="font-bold">0XX-XXX-XXXX</span></p>
-        <p class="text-sm text-gray-600">ชื่อบัญชี: <span class="font-bold">My Cafe</span></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Upload Slip Section -->
-  <div class="bg-white rounded-xl p-6 shadow-sm">
-    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-      ขั้นตอนการชำระเงิน
-    </h3>
-    
-    <!-- Steps -->
-    <div class="space-y-3 mb-4">
-      <div class="flex items-start gap-3">
-        <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 text-orange-600 font-bold text-sm">1</div>
-        <p class="text-sm text-gray-600">สแกน QR Code ด้านบนเพื่อโอนเงิน</p>
-      </div>
-      <div class="flex items-start gap-3">
-        <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 text-orange-600 font-bold text-sm">2</div>
-        <p class="text-sm text-gray-600">Screenshot หรือบันทึกสลิปไว้ในเครื่อง</p>
-      </div>
-      <div class="flex items-start gap-3">
-        <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 text-orange-600 font-bold text-sm">3</div>
-        <p class="text-sm text-gray-600">เลือกรูปสลิปด้านล่าง แล้วกดยืนยัน</p>
-      </div>
-      <div class="flex items-start gap-3">
-        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 text-green-600 font-bold text-sm">4</div>
-        <p class="text-sm text-gray-600"><strong>ระบบจะเปิด LINE</strong> → กดส่งข้อความ + แนบรูปสลิป</p>
-      </div>
-    </div>
-
-    <!-- Upload Area -->
-    <p class="text-sm font-medium text-gray-700 mb-2">เลือกรูปสลิป:</p>
-    <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-orange-400 transition-colors cursor-pointer" onclick="document.getElementById('slip-input').click()">
-      <input type="file" id="slip-input" accept="image/*" class="hidden" onchange="handleSlipUpload(event)">
-      <div id="upload-placeholder">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-400 mb-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-        <p class="text-gray-500">แตะเพื่อเลือกรูปสลิป</p>
-        <p class="text-xs text-gray-400 mt-1">รองรับ JPG, PNG</p>
-      </div>
-      <div id="upload-preview" class="hidden">
-        <img id="slip-preview" class="max-h-40 mx-auto rounded-lg mb-2">
-        <p class="text-green-600 font-medium">✓ เลือกสลิปแล้ว</p>
-        <p class="text-xs text-gray-400 mt-1">แตะเพื่อเปลี่ยนรูป</p>
-      </div>
-    </div>
-
-    <!-- Confirm Button -->
-    <button id="confirm-payment" onclick="confirmPayment()" class="w-full mt-4 bg-green-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-600 active:scale-95 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled>
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-      ยืนยัน → เปิด LINE ส่งออเดอร์
-    </button>
-    
-    <p class="text-xs text-center text-gray-400 mt-3">
-      💡 หลังกดยืนยัน ระบบจะเปิด LINE ให้คุณส่งข้อความ<br>
-      อย่าลืมกดปุ่ม <strong>+</strong> เพื่อแนบรูปสลิปด้วยนะคะ
-    </p>
-  </div>
-
-  <!-- QR Expired Modal -->
-  <div id="qr-expired-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-    <div class="absolute inset-0 bg-black/50"></div>
-    <div class="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full relative z-10 text-center animate-slide-up">
-      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-      </div>
-      <h3 class="text-xl font-bold text-gray-800 mb-2">QR Code หมดอายุ</h3>
-      <p class="text-gray-500 mb-6">กรุณากดปุ่มด้านล่างเพื่อสร้าง QR Code ใหม่</p>
-      <button onclick="regenerateQR()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
-        สร้าง QR Code ใหม่
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Thank You Page -->
-<div id="thankyou-page" class="hidden container mx-auto max-w-2xl px-4 py-6 pb-24">
-  <div class="text-center py-12">
-    <!-- Success Animation -->
-    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-checkmark">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">ขอบคุณที่สั่งซื้อ! 🎉</h2>
-    <p class="text-gray-500 mb-8">เราได้รับคำสั่งซื้อของคุณแล้ว</p>
-
-    <!-- Order Status Card -->
-    <div class="bg-white rounded-xl p-6 shadow-lg mb-6 text-left">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
-        </div>
-        <div>
-          <p class="font-bold text-gray-800">กำลังเตรียมเครื่องดื่ม</p>
-          <p class="text-sm text-gray-500">รอสักครู่นะคะ...</p>
-        </div>
-      </div>
-
-      <!-- Delivery Info -->
-      <div id="delivery-info" class="bg-gray-50 rounded-lg p-4 mb-4">
-        <p class="text-sm text-gray-600 mb-1">สถานที่รับสินค้า</p>
-        <p id="delivery-location" class="font-bold text-gray-800"></p>
-      </div>
-
-      <!-- Order Items -->
-      <div class="border-t pt-4">
-        <p class="text-sm text-gray-600 mb-2">รายการสั่งซื้อ</p>
-        <div id="thankyou-items" class="space-y-2 text-sm"></div>
-        <div class="border-t mt-3 pt-3 flex justify-between">
-          <span class="font-bold">ยอดรวม</span>
-          <span id="thankyou-total" class="font-bold text-orange-600"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Status Messages -->
-    <div class="bg-blue-50 rounded-xl p-4 mb-6">
-      <div class="flex items-start gap-3">
-        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-        <div class="text-left">
-          <p id="status-message" class="font-medium text-blue-800">พนักงานกำลังเตรียมเครื่องดื่มให้คุณ</p>
-          <p class="text-sm text-blue-600 mt-1">ใช้เวลาประมาณ 5-10 นาที</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <button onclick="resetOrder()" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-orange-700 active:scale-95 transition-all">
-      สั่งเพิ่มอีก
-    </button>
-  </div>
-</div>
-
-<!-- Product Modal -->
+<!-- Image Modal -->
 <div id="modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-  <div class="absolute inset-0 bg-black/40" onclick="closeModal()"></div>
-  <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 shadow-xl relative animate-slide-up">
+  <div class="absolute inset-0 bg-black/50" onclick="closeModal()"></div>
+  <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 shadow-xl relative animate-slide-up max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-start mb-4">
       <div>
-        <h3 id="modal-name" class="text-xl font-bold text-gray-900 pr-4"></h3>
-        <p id="modal-price" class="text-orange-600 font-bold text-lg"></p>
+        <h3 id="modal-name" class="text-lg font-bold text-gray-900 pr-4"></h3>
+        <p id="modal-price" class="text-orange-600 font-bold text-xl"></p>
+        <p id="modal-category" class="text-sm text-gray-500"></p>
       </div>
       <button onclick="closeModal()" class="p-1 bg-gray-100 rounded-full hover:bg-gray-200">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </button>
     </div>
 
-    <div id="sweetness-section" class="mb-6">
-      <h4 class="font-semibold text-gray-700 mb-3 text-sm">เลือกระดับความหวาน</h4>
-      <div class="space-y-2" id="sweetness-options"></div>
-    </div>
-
-    <div class="flex items-center justify-between mb-6 bg-gray-50 p-3 rounded-lg">
-      <span class="font-semibold text-gray-700">จำนวน</span>
-      <div class="flex items-center gap-4">
-        <button onclick="changeQuantity(-1)" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border shadow-sm text-gray-600 active:scale-95 transition-transform">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
-        </button>
-        <span id="quantity" class="font-bold text-lg w-6 text-center">1</span>
-        <button onclick="changeQuantity(1)" class="w-8 h-8 flex items-center justify-center rounded-full bg-orange-500 text-white shadow-sm active:scale-95 transition-transform">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-        </button>
+    <!-- Image Display Area -->
+    <div class="bg-gray-100 rounded-xl p-4 mb-4">
+      <div id="modal-image" class="aspect-square w-full bg-white rounded-lg flex items-center justify-center overflow-hidden">
+        <div class="text-center text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
+          <p class="text-sm">รูปสินค้า</p>
+        </div>
       </div>
     </div>
 
-    <button onclick="addToCart()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-orange-700 active:scale-95 transition-all">
-      เพิ่มลงตะกร้า <span id="modal-total">0</span>.-
-    </button>
-  </div>
-</div>
-
-<!-- Cart Drawer -->
-<div id="cart-drawer" class="hidden fixed inset-0 z-50 flex justify-end">
-  <div class="absolute inset-0 bg-black/20" onclick="toggleCart()"></div>
-  <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-right">
-    <div class="p-4 border-b flex justify-between items-center bg-orange-50">
-      <h2 class="text-lg font-bold flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-        ตะกร้าสินค้า
-      </h2>
-      <button onclick="toggleCart()" class="p-2 hover:bg-orange-100 rounded-full">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    <!-- Image Link -->
+    <div id="image-link-section" class="bg-blue-50 rounded-xl p-4">
+      <p class="text-sm text-gray-600 mb-2">🔗 ลิงก์รูปภาพ:</p>
+      <a id="image-link" href="#" target="_blank" class="text-blue-600 hover:text-blue-800 underline break-all text-sm">
+      </a>
+      <button onclick="copyImageLink()" class="mt-3 w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+        คัดลอกลิงก์
       </button>
-    </div>
-
-    <div id="cart-items" class="flex-1 overflow-y-auto p-4"></div>
-
-    <div id="cart-footer" class="hidden p-4 border-t bg-gray-50">
-      <div class="flex justify-between items-center mb-4">
-        <span class="text-gray-600">ยอดรวมทั้งหมด</span>
-        <span id="total-price" class="text-2xl font-bold text-orange-600">0.-</span>
-      </div>
-      
-      <button onclick="proceedToCheckout()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        ดำเนินการสั่งซื้อ
-      </button>
+      <p id="copy-success" class="hidden text-center text-green-600 text-sm mt-2">✓ คัดลอกแล้ว!</p>
     </div>
   </div>
-</div>
-
-<!-- Floating Cart Button -->
-<div id="floating-cart" class="hidden fixed bottom-6 right-6 z-40">
-  <button onclick="toggleCart()" class="bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-transform hover:scale-105 flex items-center gap-2">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-    <span id="floating-badge" class="font-bold">0</span>
-  </button>
 </div>
 
 <script>
-// === CONFIG ===
-const LINE_OA_ID = '@570uqhbl';
-const QR_TIMEOUT = 5 * 60; // 5 minutes in seconds
-
-// === MENU DATA ===
+// === MENU DATA - ครัวคอนโด 95 รายการ ===
 const MENU_ITEMS = [
-  { id: 1, name: 'เนสกาแฟ (Nescafe)', price: 29, category: 'Coffee' },
-  { id: 2, name: 'กาแฟโบราณ (Thai Coffee Milk)', price: 29, category: 'Coffee' },
-  { id: 3, name: 'โอเลี้ยง (Thai Coffee Iced)', price: 29, category: 'Coffee' },
-  { id: 4, name: 'ชานมไต้หวัน (Taiwan Milk Tea)', price: 29, category: 'Tea' },
-  { id: 5, name: 'ชาไทย (Thai Tea)', price: 29, category: 'Tea' },
-  { id: 6, name: 'ชาเขียว (Green Tea)', price: 29, category: 'Tea' },
-  { id: 7, name: 'โกโก้ (Cocoa)', price: 29, category: 'Milk' },
-  { id: 8, name: 'โอวัลติน (Ovaltine)', price: 29, category: 'Milk' },
-  { id: 9, name: 'นมชมพู (Pink Milk)', price: 29, category: 'Milk' },
-  { id: 10, name: 'นมเขียว (Green Milk)', price: 29, category: 'Milk' },
-  { id: 11, name: 'นมเผือก (Taro Milk)', price: 29, category: 'Milk' },
-  { id: 12, name: 'นมสด (Fresh Milk)', price: 29, category: 'Milk' },
-  { id: 13, name: 'ชามะนาว (Lemon Thai Tea)', price: 29, category: 'Tea' },
-  { id: 14, name: 'ชาเขียวมะนาว (Lemon Green Tea)', price: 29, category: 'Tea' },
-  { id: 15, name: 'แดงมะนาว (Lemon Red Syrup)', price: 29, category: 'Refreshment' },
-  { id: 16, name: 'เขียวมะนาว (Lemon Green Syrup)', price: 29, category: 'Refreshment' },
-  { id: 17, name: 'โค้ก (Coca-Cola)', price: 25, category: 'Soft Drink' },
-  { id: 18, name: 'แฟนต้า ส้ม (Fanta Orange)', price: 25, category: 'Soft Drink' },
-  { id: 19, name: 'แฟนต้า แดง (Fanta Red)', price: 25, category: 'Soft Drink' },
-  { id: 20, name: 'สไปร์ท (Sprite)', price: 25, category: 'Soft Drink' },
-  { id: 21, name: 'น้ำเขียว (Green Soda)', price: 25, category: 'Soft Drink' },
+  // 🥤 หมวด 1: เครื่องดื่ม (16 รายการ)
+  { id: 1, name: 'เนสกาแฟ (Nescafe)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/nescafe.jpg' },
+  { id: 2, name: 'กาแฟโบราณ (Thai Coffee Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/thai-coffee.jpg' },
+  { id: 3, name: 'โอเลี้ยง (Thai Coffee Iced)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/oliang.jpg' },
+  { id: 4, name: 'ชานมไต้หวัน (Taiwan Milk Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/taiwan-milk-tea.jpg' },
+  { id: 5, name: 'โกโก้ (Cocoa)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/cocoa.jpg' },
+  { id: 6, name: 'โอวัลติน (Ovaltine)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/ovaltine.jpg' },
+  { id: 7, name: 'ชาไทย (Thai Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/thai-tea.jpg' },
+  { id: 8, name: 'ชาเขียว (Green Tea)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-tea.jpg' },
+  { id: 9, name: 'นมชมพู (Pink Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/pink-milk.jpg' },
+  { id: 10, name: 'นมเขียว (Green Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-milk.jpg' },
+  { id: 11, name: 'นมเผือก (Taro Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/taro-milk.jpg' },
+  { id: 12, name: 'นมสด (Fresh Milk)', price: '29', category: 'drink', imageUrl: 'https://example.com/images/fresh-milk.jpg' },
+  { id: 13, name: 'ชามะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/lemon-tea.jpg' },
+  { id: 14, name: 'ชาเขียวมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/lemon-green-tea.jpg' },
+  { id: 15, name: 'แดงมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/red-syrup.jpg' },
+  { id: 16, name: 'เขียวมะนาว', price: '29', category: 'drink', imageUrl: 'https://example.com/images/green-syrup.jpg' },
+
+  // 🍚 หมวด 2: ข้าวกระเพรา & ข้าวราด (30 รายการ)
+  { id: 17, name: 'ข้าวกระเพราเนื้อสับ ⭐', price: '75', category: 'rice', imageUrl: 'https://example.com/images/beef-basil.jpg' },
+  { id: 18, name: 'ข้าวกระเพราหมูกรอบ', price: '75', category: 'rice', imageUrl: 'https://example.com/images/crispy-pork-basil.jpg' },
+  { id: 19, name: 'ข้าวกระเพราเอ็นไก่', price: '75', category: 'rice', imageUrl: 'https://example.com/images/chicken-tendon-basil.jpg' },
+  { id: 20, name: 'ข้าวกระเพราทะเล', price: '75', category: 'rice', imageUrl: 'https://example.com/images/seafood-basil.jpg' },
+  { id: 21, name: 'ข้าวกะเพรา (ไก่/หมูสับ/หมูชิ้น)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/basil-rice.jpg' },
+  { id: 22, name: 'ข้าวกระเพราเครื่องในไก่', price: '75', category: 'rice', imageUrl: 'https://example.com/images/chicken-giblet-basil.jpg' },
+  { id: 23, name: 'ข้าวผัดพริกหยวก (ไก่/หมู)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/bell-pepper-rice.jpg' },
+  { id: 24, name: 'ข้าวผัด (หมู/ไก่)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/fried-rice.jpg' },
+  { id: 25, name: 'ข้าวผัดกุ้ง (กุ้ง/แหนม/หมูกรอบ)', price: '75', category: 'rice', imageUrl: 'https://example.com/images/shrimp-fried-rice.jpg' },
+  { id: 26, name: 'ข้าวผัดปลากะป๋อง', price: '75', category: 'rice', imageUrl: 'https://example.com/images/canned-fish-rice.jpg' },
+  { id: 27, name: 'ข้าวผัดพริกแกง (หมู/ไก่)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/curry-paste-rice.jpg' },
+  { id: 28, name: 'ข้าวผัดพริกแกง (กุ้ง/ทะเล/หมูกรอบ)', price: '75', category: 'rice', imageUrl: 'https://example.com/images/curry-paste-seafood.jpg' },
+  { id: 29, name: 'ข้าวหมูทอดกะเทียม (ไก่/หมู/กุ้ง)', price: '60-75', category: 'rice', imageUrl: 'https://example.com/images/garlic-pork-rice.jpg' },
+  { id: 30, name: 'ข้าวพะแนงหมู (หมู/ไก่)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/panang-rice.jpg' },
+  { id: 31, name: 'ข้าวห่อหมกทะเลไข่ข้น', price: '75', category: 'rice', imageUrl: 'https://example.com/images/hormok-rice.jpg' },
+  { id: 32, name: 'ข้าวไข่เจียว (หมูสับ/แหนม/กุ้งสับ)', price: '60-75', category: 'rice', imageUrl: 'https://example.com/images/omelette-rice.jpg' },
+  { id: 33, name: 'ข้าวคะน้า (หมูสับ/หมูชิ้น/หมูกรอบ)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/kale-rice.jpg' },
+  { id: 34, name: 'ข้าวผัดวุ้นเส้น (ไก่/หมู)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/glass-noodle-rice.jpg' },
+  { id: 35, name: 'ข้าวหมูกรอบคั่วพริกเกลือ', price: '60', category: 'rice', imageUrl: 'https://example.com/images/salt-pepper-pork.jpg' },
+  { id: 36, name: 'ข้าวผัดผงกะหรี่ (หมู/ไก่)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/curry-powder-rice.jpg' },
+  { id: 37, name: 'ข้าวผัดผงกะหรี่ (ทะเล/หมูกรอบ)', price: '75', category: 'rice', imageUrl: 'https://example.com/images/curry-seafood-rice.jpg' },
+  { id: 38, name: 'ข้าวบล็อกโคลี่กุ้ง', price: '75', category: 'rice', imageUrl: 'https://example.com/images/broccoli-shrimp.jpg' },
+  { id: 39, name: 'ข้าวไก่ผัดขิง (หมู/ไก่)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/ginger-chicken.jpg' },
+  { id: 40, name: 'ข้าวหมูสามชั้นทอดน้ำปลา', price: '75', category: 'rice', imageUrl: 'https://example.com/images/pork-belly-rice.jpg' },
+  { id: 41, name: 'ข้าวราดผัดฉ่า (ไก่/หมู/ทะเล)', price: '65-75', category: 'rice', imageUrl: 'https://example.com/images/padcha-rice.jpg' },
+  { id: 42, name: 'ข้าวราดลาบหมู', price: '60', category: 'rice', imageUrl: 'https://example.com/images/larb-rice.jpg' },
+  { id: 43, name: 'ข้าวหมูกรอบ', price: '60', category: 'rice', imageUrl: 'https://example.com/images/crispy-pork-rice.jpg' },
+  { id: 44, name: 'ข้าวหมูผัดกะปิ (หมูชิ้น/หมูกรอบ)', price: '60', category: 'rice', imageUrl: 'https://example.com/images/shrimp-paste-pork.jpg' },
+  { id: 45, name: 'ข้าวไข่ข้น', price: '60', category: 'rice', imageUrl: 'https://example.com/images/steamed-egg-rice.jpg' },
+  { id: 46, name: 'ข้าวยำไก่แซ่บ', price: '60', category: 'rice', imageUrl: 'https://example.com/images/spicy-chicken-rice.jpg' },
+
+  // 🍜 หมวด 3: เมนูเส้น & สุกี้ (11 รายการ)
+  { id: 47, name: 'สุกี้ น้ำ/แห้ง (ไก่/หมู/ทะเล)', price: '60-75', category: 'noodle', imageUrl: 'https://example.com/images/suki.jpg' },
+  { id: 48, name: 'ผัดซีอิ๊ว (ไก่/หมู/ทะเล)', price: '60-75', category: 'noodle', imageUrl: 'https://example.com/images/pad-see-ew.jpg' },
+  { id: 49, name: 'ราดหน้า (ไก่/หมู/ทะเล)', price: '60-75', category: 'noodle', imageUrl: 'https://example.com/images/rad-na.jpg' },
+  { id: 50, name: 'ผัดมาม่าขี้เมา (ไก่/หมู/ทะเล)', price: '60-75', category: 'noodle', imageUrl: 'https://example.com/images/drunken-mama.jpg' },
+  { id: 51, name: 'ก๋วยเตี๋ยวคั่ว (หมู/ไก่)', price: '75', category: 'noodle', imageUrl: 'https://example.com/images/kuay-teow-kua.jpg' },
+  { id: 52, name: 'ผัดไทย (ไก่/หมู)', price: '60', category: 'noodle', imageUrl: 'https://example.com/images/pad-thai.jpg' },
+  { id: 53, name: 'ผัดไทยกุ้งสด', price: '75', category: 'noodle', imageUrl: 'https://example.com/images/pad-thai-shrimp.jpg' },
+  { id: 54, name: 'ผัดไทยห่อไข่ (หมู/ทะเล)', price: '70-80', category: 'noodle', imageUrl: 'https://example.com/images/pad-thai-egg-wrap.jpg' },
+  { id: 55, name: 'สปาเก็ตตี้ผัดขี้เมา (หมู/ทะเล)', price: '75-85', category: 'noodle', imageUrl: 'https://example.com/images/drunken-spaghetti.jpg' },
+  { id: 56, name: 'ผัดมักกะโรนี (ไก่/หมู)', price: '75', category: 'noodle', imageUrl: 'https://example.com/images/macaroni.jpg' },
+  { id: 57, name: 'ผัดมักกะโรนีกุ้ง', price: '85', category: 'noodle', imageUrl: 'https://example.com/images/shrimp-macaroni.jpg' },
+
+  // 🍲 หมวด 4: ข้าวต้ม (3 รายการ)
+  { id: 58, name: 'ข้าวต้มหมูสับ (Pork Porridge)', price: '60', category: 'porridge', imageUrl: 'https://example.com/images/pork-porridge.jpg' },
+  { id: 59, name: 'ข้าวต้มกุ้ง (Shrimp Rice Porridge)', price: '75', category: 'porridge', imageUrl: 'https://example.com/images/shrimp-porridge.jpg' },
+  { id: 60, name: 'ข้าวต้มปลากะพง (Sea Bass Congee)', price: '89', category: 'porridge', imageUrl: 'https://example.com/images/fish-porridge.jpg' },
+
+  // 🥣 หมวด 5: ต้ม / แกงจืด / ซุป (7 รายการ)
+  { id: 61, name: 'แกงจืดเต้าหู้หมูสับ', price: '70', category: 'soup', imageUrl: 'https://example.com/images/tofu-soup.jpg' },
+  { id: 62, name: 'แกงจืดวุ้นเส้นเต้าหู้หมูสับ', price: '75', category: 'soup', imageUrl: 'https://example.com/images/glass-noodle-soup.jpg' },
+  { id: 63, name: 'แกงจืดไข่น้ำหมูสับ', price: '75', category: 'soup', imageUrl: 'https://example.com/images/egg-soup.jpg' },
+  { id: 64, name: 'ซุปเปอร์ตีนไก่', price: '79', category: 'soup', imageUrl: 'https://example.com/images/chicken-feet-soup.jpg' },
+  { id: 65, name: 'ต้มแซ่บหมูกระดูกอ่อนใบพาย', price: '99', category: 'soup', imageUrl: 'https://example.com/images/tom-saab.jpg' },
+  { id: 66, name: 'ต้มยำรวมมิตรทะเล (น้ำข้น/น้ำใส)', price: '109', category: 'soup', imageUrl: 'https://example.com/images/tom-yum-seafood.jpg' },
+  { id: 67, name: 'ต้มยำกุ้ง (น้ำข้น/น้ำใส)', price: '109', category: 'soup', imageUrl: 'https://example.com/images/tom-yum-kung.jpg' },
+
+  // 🥗 หมวด 6: ส้มตำ (13 รายการ)
+  { id: 68, name: 'ตำขนมจีน', price: '50', category: 'somtum', imageUrl: 'https://example.com/images/tam-khanom-jeen.jpg' },
+  { id: 69, name: 'ตำลาว', price: '60', category: 'somtum', imageUrl: 'https://example.com/images/tam-lao.jpg' },
+  { id: 70, name: 'ตำแตง', price: '60', category: 'somtum', imageUrl: 'https://example.com/images/tam-taeng.jpg' },
+  { id: 71, name: 'ตำถั่ว', price: '60', category: 'somtum', imageUrl: 'https://example.com/images/tam-tua.jpg' },
+  { id: 72, name: 'ตำซั่วขนมจีน', price: '60', category: 'somtum', imageUrl: 'https://example.com/images/tam-sua.jpg' },
+  { id: 73, name: 'ตำแคปหมู', price: '60', category: 'somtum', imageUrl: 'https://example.com/images/tam-kap-moo.jpg' },
+  { id: 74, name: 'ตำปูปลาร้า', price: '65', category: 'somtum', imageUrl: 'https://example.com/images/tam-poo-plara.jpg' },
+  { id: 75, name: 'ตำไทย', price: '65', category: 'somtum', imageUrl: 'https://example.com/images/tam-thai.jpg' },
+  { id: 76, name: 'ตำแคปหมูขนมจีน', price: '65', category: 'somtum', imageUrl: 'https://example.com/images/tam-kap-moo-noodle.jpg' },
+  { id: 77, name: 'ตำแตงไข่ต้ม', price: '75', category: 'somtum', imageUrl: 'https://example.com/images/tam-taeng-egg.jpg' },
+  { id: 78, name: 'ตำไทยไข่เค็ม', price: '85', category: 'somtum', imageUrl: 'https://example.com/images/tam-thai-salted-egg.jpg' },
+  { id: 79, name: 'ตำถั่วหมูกรอบ', price: '85', category: 'somtum', imageUrl: 'https://example.com/images/tam-tua-crispy.jpg' },
+  { id: 80, name: 'ตำกุ้งน้ำปลาร้า (สด/สุก)', price: '119', category: 'somtum', imageUrl: 'https://example.com/images/tam-kung.jpg' },
+
+  // 🥢 หมวด 7: ยำ (7 รายการ)
+  { id: 81, name: 'ยำหมูยอ', price: '69', category: 'yum', imageUrl: 'https://example.com/images/yum-moo-yor.jpg' },
+  { id: 82, name: 'ยำวุ้นเส้นหมูสับโบราณ', price: '69', category: 'yum', imageUrl: 'https://example.com/images/yum-woonsen.jpg' },
+  { id: 83, name: 'ยำหมูยอน้ำปลาร้า', price: '69', category: 'yum', imageUrl: 'https://example.com/images/yum-moo-yor-plara.jpg' },
+  { id: 84, name: 'ยำวุ้นเส้นหมูยอ', price: '69', category: 'yum', imageUrl: 'https://example.com/images/yum-woonsen-moo-yor.jpg' },
+  { id: 85, name: 'ยำรวมมิตร', price: '99', category: 'yum', imageUrl: 'https://example.com/images/yum-ruam-mit.jpg' },
+  { id: 86, name: 'ยำคะน้ากรอบกุ้งสด', price: '99', category: 'yum', imageUrl: 'https://example.com/images/yum-kana-shrimp.jpg' },
+  { id: 87, name: 'ยำรวมทะเล', price: '109', category: 'yum', imageUrl: 'https://example.com/images/yum-seafood.jpg' },
+
+  // 🍗 หมวด 8: ทานเล่น (8 รายการ)
+  { id: 88, name: 'เฟรนช์ฟราย', price: '69', category: 'snack', imageUrl: 'https://example.com/images/french-fries.jpg' },
+  { id: 89, name: 'ปีกไก่ทอด', price: '69', category: 'snack', imageUrl: 'https://example.com/images/fried-chicken-wings.jpg' },
+  { id: 90, name: 'นักเก็ต', price: '69', category: 'snack', imageUrl: 'https://example.com/images/nuggets.jpg' },
+  { id: 91, name: 'ลาบทอด', price: '79', category: 'snack', imageUrl: 'https://example.com/images/larb-tod.jpg' },
+  { id: 92, name: 'ลาบหมู', price: '89', category: 'snack', imageUrl: 'https://example.com/images/larb-moo.jpg' },
+  { id: 93, name: 'หมูกรอบน้ำจิ้มซีฟู้ด', price: 'S=95 / M=140 / L=250', category: 'snack', imageUrl: 'https://example.com/images/crispy-pork-seafood.jpg' },
+  { id: 94, name: 'สามชั้นทอดน้ำปลา', price: 'S=95 / M=140 / L=250', category: 'snack', imageUrl: 'https://example.com/images/pork-belly-fried.jpg' },
+  { id: 95, name: 'ทอดมันกุ้ง', price: '129', category: 'snack', imageUrl: 'https://example.com/images/shrimp-cake.jpg' },
 ];
 
-const SWEETNESS_LEVELS = [
-  { label: 'หวานมาก 100%', value: '100%' },
-  { label: 'หวานปกติ 70%', value: '70%' },
-  { label: 'หวานน้อย 50%', value: '50%' },
-  { label: 'ไม่หวาน 0%', value: '0%' },
-];
+const CATEGORY_NAMES = {
+  'drink': '🥤 เครื่องดื่ม',
+  'rice': '🍚 ข้าวราด',
+  'noodle': '🍜 เส้น/สุกี้',
+  'porridge': '🍲 ข้าวต้ม',
+  'soup': '🥣 ต้ม/แกง',
+  'somtum': '🥗 ส้มตำ',
+  'yum': '🥢 ยำ',
+  'snack': '🍗 ทานเล่น'
+};
+
+const CATEGORY_ICONS = {
+  'drink': '🥤',
+  'rice': '🍚',
+  'noodle': '🍜',
+  'porridge': '🍲',
+  'soup': '🥣',
+  'somtum': '🥗',
+  'yum': '🥢',
+  'snack': '🍗'
+};
 
 // === STATE ===
-let cart = [];
+let currentCategory = 'all';
 let selectedItem = null;
-let currentQuantity = 1;
-let currentSweetness = '70%';
-let selectedDelivery = null;
-let countdownInterval = null;
-let remainingTime = QR_TIMEOUT;
-let slipUploaded = false;
 
 // === RENDER MENU ===
 function renderMenu() {
   const grid = document.getElementById('menu-grid');
-  grid.innerHTML = MENU_ITEMS.map(item => `
-    <div onclick="openModal(${item.id})" class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer border border-gray-100 flex flex-col">
-      <div class="aspect-square bg-gray-200 w-full flex items-center justify-center text-gray-400 relative">
+  const filteredItems = currentCategory === 'all' 
+    ? MENU_ITEMS 
+    : MENU_ITEMS.filter(item => item.category === currentCategory);
+  
+  // Update count
+  document.getElementById('menu-count').textContent = `แสดง ${filteredItems.length} รายการ`;
+  
+  grid.innerHTML = filteredItems.map(item => `
+    <div onclick="openModal(${item.id})" class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all hover:scale-[1.02] overflow-hidden cursor-pointer border border-gray-100 flex flex-col">
+      <div class="aspect-[4/3] bg-gradient-to-br from-orange-100 to-orange-50 w-full flex items-center justify-center text-orange-300 relative">
         <div class="text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-1 opacity-50"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
-          <span class="text-xs">รูปสินค้า</span>
+          <span class="text-3xl">${CATEGORY_ICONS[item.category]}</span>
+          <p class="text-xs text-orange-400 mt-1">กดดูรูป</p>
         </div>
-        ${item.category === 'Soft Drink' ? '<span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">เย็นซ่า</span>' : ''}
+        ${item.name.includes('⭐') ? '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">แนะนำ</span>' : ''}
       </div>
       <div class="p-3 flex flex-col flex-grow">
         <h3 class="font-semibold text-gray-800 line-clamp-2 mb-1 leading-snug text-sm">${item.name}</h3>
         <div class="mt-auto flex justify-between items-center pt-2">
-          <span class="text-orange-600 font-bold text-lg">${item.price}.-</span>
-          <button class="bg-orange-100 text-orange-600 p-1.5 rounded-lg hover:bg-orange-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-          </button>
+          <span class="text-orange-600 font-bold">${item.price}.-</span>
+          <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">${CATEGORY_ICONS[item.category]}</span>
         </div>
       </div>
     </div>
   `).join('');
+}
+
+// === FILTER CATEGORY ===
+function filterCategory(category) {
+  currentCategory = category;
+  
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    if (btn.dataset.category === category) {
+      btn.classList.remove('bg-white', 'text-gray-600', 'border');
+      btn.classList.add('bg-orange-500', 'text-white');
+    } else {
+      btn.classList.remove('bg-orange-500', 'text-white');
+      btn.classList.add('bg-white', 'text-gray-600', 'border');
+    }
+  });
+  
+  renderMenu();
 }
 
 // === MODAL FUNCTIONS ===
 function openModal(itemId) {
   selectedItem = MENU_ITEMS.find(item => item.id === itemId);
-  currentQuantity = 1;
-  currentSweetness = '70%';
   
   document.getElementById('modal-name').textContent = selectedItem.name;
   document.getElementById('modal-price').textContent = `${selectedItem.price} บาท`;
-  document.getElementById('quantity').textContent = currentQuantity;
-  document.getElementById('modal-total').textContent = selectedItem.price;
-  
-  const sweetnessSection = document.getElementById('sweetness-section');
-  if (selectedItem.category === 'Soft Drink') {
-    sweetnessSection.style.display = 'none';
-  } else {
-    sweetnessSection.style.display = 'block';
-    renderSweetnessOptions();
-  }
+  document.getElementById('modal-category').textContent = CATEGORY_NAMES[selectedItem.category];
+  document.getElementById('image-link').href = selectedItem.imageUrl;
+  document.getElementById('image-link').textContent = selectedItem.imageUrl;
+  document.getElementById('copy-success').classList.add('hidden');
   
   document.getElementById('modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
   document.getElementById('modal').classList.add('hidden');
+  document.body.style.overflow = '';
 }
 
-function renderSweetnessOptions() {
-  const container = document.getElementById('sweetness-options');
-  container.innerHTML = SWEETNESS_LEVELS.map(level => `
-    <label class="flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${currentSweetness === level.value ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:bg-gray-50'}">
-      <span class="text-sm font-medium">${level.label}</span>
-      <input type="radio" name="sweetness" value="${level.value}" ${currentSweetness === level.value ? 'checked' : ''} onchange="currentSweetness = this.value; renderSweetnessOptions()" class="w-4 h-4 text-orange-600">
-    </label>
-  `).join('');
-}
-
-function changeQuantity(change) {
-  currentQuantity = Math.max(1, currentQuantity + change);
-  document.getElementById('quantity').textContent = currentQuantity;
-  document.getElementById('modal-total').textContent = selectedItem.price * currentQuantity;
-}
-
-function addToCart() {
-  const newItem = {
-    ...selectedItem,
-    cartId: Date.now(),
-    sweetness: selectedItem.category !== 'Soft Drink' ? currentSweetness : null,
-    quantity: currentQuantity,
-  };
+function copyImageLink() {
+  if (!selectedItem) return;
   
-  cart.push(newItem);
-  updateCart();
-  closeModal();
-}
-
-// === CART FUNCTIONS ===
-function updateCart() {
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
-  const badge = document.getElementById('cart-badge');
-  const floatingBadge = document.getElementById('floating-badge');
-  if (totalItems > 0) {
-    badge.classList.remove('hidden');
-    badge.textContent = totalItems;
-    floatingBadge.textContent = totalItems;
-    document.getElementById('floating-cart').classList.remove('hidden');
-  } else {
-    badge.classList.add('hidden');
-    document.getElementById('floating-cart').classList.add('hidden');
-  }
-  
-  const container = document.getElementById('cart-items');
-  if (cart.length === 0) {
-    container.innerHTML = `
-      <div class="flex flex-col items-center justify-center h-full text-gray-400">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2 opacity-50"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
-        <p>ยังไม่มีรายการสินค้า</p>
-      </div>
-    `;
-    document.getElementById('cart-footer').classList.add('hidden');
-  } else {
-    container.innerHTML = cart.map(item => `
-      <div class="flex gap-3 border-b border-gray-100 pb-3 mb-3">
-        <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
-        </div>
-        <div class="flex-1">
-          <div class="flex justify-between items-start">
-            <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
-            <button onclick="removeFromCart(${item.cartId})" class="text-gray-400 hover:text-red-500">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-            </button>
-          </div>
-          ${item.sweetness ? `<p class="text-xs text-gray-500 mt-1">หวาน: ${item.sweetness}</p>` : ''}
-          <div class="flex justify-between items-center mt-2">
-            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">x${item.quantity}</span>
-            <span class="font-bold text-orange-600">${item.price * item.quantity}.-</span>
-          </div>
-        </div>
-      </div>
-    `).join('');
+  navigator.clipboard.writeText(selectedItem.imageUrl).then(() => {
+    document.getElementById('copy-success').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('copy-success').classList.add('hidden');
+    }, 2000);
+  }).catch(() => {
+    const textArea = document.createElement('textarea');
+    textArea.value = selectedItem.imageUrl;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
     
-    document.getElementById('total-price').textContent = `${totalPrice}.-`;
-    document.getElementById('cart-footer').classList.remove('hidden');
-  }
-}
-
-function removeFromCart(cartId) {
-  cart = cart.filter(item => item.cartId !== cartId);
-  updateCart();
-}
-
-function toggleCart() {
-  const drawer = document.getElementById('cart-drawer');
-  drawer.classList.toggle('hidden');
-}
-
-// === PAGE NAVIGATION ===
-function showPage(pageName) {
-  document.getElementById('menu-page').classList.add('hidden');
-  document.getElementById('checkout-page').classList.add('hidden');
-  document.getElementById('payment-page').classList.add('hidden');
-  document.getElementById('thankyou-page').classList.add('hidden');
-  
-  document.getElementById(`${pageName}-page`).classList.remove('hidden');
-  window.scrollTo(0, 0);
-}
-
-function proceedToCheckout() {
-  if (cart.length === 0) return;
-  
-  toggleCart();
-  renderCheckoutSummary();
-  showPage('checkout');
-}
-
-function goBackToMenu() {
-  showPage('menu');
-}
-
-// === CHECKOUT FUNCTIONS ===
-function renderCheckoutSummary() {
-  const container = document.getElementById('checkout-items');
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
-  container.innerHTML = cart.map(item => `
-    <div class="flex justify-between items-center">
-      <span class="text-gray-700">${item.name} ${item.sweetness ? `(${item.sweetness})` : ''} x${item.quantity}</span>
-      <span class="font-medium">${item.price * item.quantity}.-</span>
-    </div>
-  `).join('');
-  
-  document.getElementById('checkout-total').textContent = `${totalPrice}.-`;
-}
-
-function selectDeliveryOption(option) {
-  selectedDelivery = option;
-  
-  // Update radio buttons
-  document.querySelectorAll('input[name="delivery"]').forEach(radio => {
-    radio.checked = radio.value === option;
+    document.getElementById('copy-success').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('copy-success').classList.add('hidden');
+    }, 2000);
   });
-  
-  // Update border styles
-  document.querySelectorAll('[onclick^="selectDeliveryOption"]').forEach(el => {
-    el.classList.remove('border-orange-500', 'bg-orange-50');
-    el.classList.add('border-transparent');
-  });
-  event.currentTarget.classList.remove('border-transparent');
-  event.currentTarget.classList.add('border-orange-500', 'bg-orange-50');
-  
-  // Show/hide detail forms
-  document.getElementById('buildingA-details').classList.add('hidden');
-  document.getElementById('buildingB-details').classList.add('hidden');
-  
-  if (option === 'buildingA') {
-    document.getElementById('buildingA-details').classList.remove('hidden');
-  } else if (option === 'buildingB') {
-    document.getElementById('buildingB-details').classList.remove('hidden');
-  }
-  
-  validateDeliveryForm();
 }
 
-function validateDeliveryForm() {
-  const btn = document.getElementById('continue-to-payment');
-  let isValid = false;
-  
-  if (selectedDelivery === 'pickup') {
-    isValid = true;
-  } else if (selectedDelivery === 'buildingA') {
-    const floor = document.getElementById('buildingA-floor').value;
-    const room = document.getElementById('buildingA-room').value;
-    isValid = floor && room;
-  } else if (selectedDelivery === 'buildingB') {
-    const floor = document.getElementById('buildingB-floor').value;
-    const room = document.getElementById('buildingB-room').value;
-    isValid = floor && room;
-  }
-  
-  btn.disabled = !isValid;
-}
-
-// Add event listeners for form validation
-document.getElementById('buildingA-floor').addEventListener('change', validateDeliveryForm);
-document.getElementById('buildingA-room').addEventListener('input', validateDeliveryForm);
-document.getElementById('buildingB-floor').addEventListener('change', validateDeliveryForm);
-document.getElementById('buildingB-room').addEventListener('input', validateDeliveryForm);
-
-// === PAYMENT PAGE ===
-function goToPayment() {
-  if (!selectedDelivery) return;
-  
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  document.getElementById('payment-amount').textContent = `${totalPrice}.-`;
-  
-  // Reset payment state
-  slipUploaded = false;
-  document.getElementById('confirm-payment').disabled = true;
-  document.getElementById('upload-placeholder').classList.remove('hidden');
-  document.getElementById('upload-preview').classList.add('hidden');
-  
-  // Start countdown
-  startCountdown();
-  
-  showPage('payment');
-}
-
-function startCountdown() {
-  remainingTime = QR_TIMEOUT;
-  updateCountdownDisplay();
-  
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-  }
-  
-  countdownInterval = setInterval(() => {
-    remainingTime--;
-    updateCountdownDisplay();
-    
-    if (remainingTime <= 0) {
-      clearInterval(countdownInterval);
-      showQRExpiredModal();
-    }
-  }, 1000);
-}
-
-function updateCountdownDisplay() {
-  const minutes = Math.floor(remainingTime / 60);
-  const seconds = remainingTime % 60;
-  const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  document.getElementById('countdown').textContent = display;
-  
-  // Change color when low
-  const timerWarning = document.getElementById('timer-warning');
-  if (remainingTime <= 60) {
-    timerWarning.classList.remove('bg-red-50', 'border-red-200');
-    timerWarning.classList.add('bg-red-100', 'border-red-300');
-    document.getElementById('countdown').classList.add('text-red-700');
-  } else {
-    timerWarning.classList.remove('bg-red-100', 'border-red-300');
-    timerWarning.classList.add('bg-red-50', 'border-red-200');
-    document.getElementById('countdown').classList.remove('text-red-700');
-  }
-}
-
-function showQRExpiredModal() {
-  document.getElementById('qr-expired-modal').classList.remove('hidden');
-}
-
-function regenerateQR() {
-  document.getElementById('qr-expired-modal').classList.add('hidden');
-  startCountdown();
-}
-
-// === SLIP UPLOAD ===
-function handleSlipUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('slip-preview').src = e.target.result;
-    document.getElementById('upload-placeholder').classList.add('hidden');
-    document.getElementById('upload-preview').classList.remove('hidden');
-    slipUploaded = true;
-    document.getElementById('confirm-payment').disabled = false;
-  };
-  reader.readAsDataURL(file);
-}
-
-// === CONFIRM PAYMENT ===
-function confirmPayment() {
-  if (!slipUploaded) return;
-  
-  // Stop countdown
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-  }
-  
-  // Prepare thank you page
-  prepareThankYouPage();
-  
-  // Send order to LINE with instruction to attach slip
-  sendOrderToLine();
-  
-  // Show thank you page after a short delay
-  setTimeout(() => {
-    showPage('thankyou');
-  }, 500);
-}
-
-function prepareThankYouPage() {
-  // Set delivery location text
-  let locationText = '';
-  if (selectedDelivery === 'pickup') {
-    locationText = '📍 รับที่หน้าร้าน';
-    document.getElementById('status-message').textContent = 'รอสักครู่ เครื่องดื่มกำลังเตรียมให้คุณ';
-  } else if (selectedDelivery === 'buildingA') {
-    const floor = document.getElementById('buildingA-floor').value;
-    const room = document.getElementById('buildingA-room').value;
-    locationText = `🏢 ตึก A ชั้น ${floor} ห้อง ${room}`;
-    document.getElementById('status-message').textContent = 'พนักงานกำลังเตรียมเครื่องดื่ม และจะนำส่งถึงห้องของคุณ';
-  } else if (selectedDelivery === 'buildingB') {
-    const floor = document.getElementById('buildingB-floor').value;
-    const room = document.getElementById('buildingB-room').value;
-    locationText = `🏢 ตึก B ชั้น ${floor} ห้อง ${room}`;
-    document.getElementById('status-message').textContent = 'พนักงานกำลังเตรียมเครื่องดื่ม และจะนำส่งถึงห้องของคุณ';
-  }
-  document.getElementById('delivery-location').textContent = locationText;
-  
-  // Render order items
-  const container = document.getElementById('thankyou-items');
-  container.innerHTML = cart.map(item => `
-    <div class="flex justify-between">
-      <span class="text-gray-600">${item.name} ${item.sweetness ? `(${item.sweetness})` : ''} x${item.quantity}</span>
-      <span class="font-medium">${item.price * item.quantity}.-</span>
-    </div>
-  `).join('');
-  
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  document.getElementById('thankyou-total').textContent = `${totalPrice}.-`;
-}
-
-function sendOrderToLine() {
-  let message = "☕ สั่งเครื่องดื่ม My Cafe\n";
-  message += "━━━━━━━━━━━━━━━━━━\n\n";
-  
-  // Delivery info
-  if (selectedDelivery === 'pickup') {
-    message += "📍 รับที่: หน้าร้าน\n\n";
-  } else if (selectedDelivery === 'buildingA') {
-    const floor = document.getElementById('buildingA-floor').value;
-    const room = document.getElementById('buildingA-room').value;
-    message += `🏢 ส่งถึง: ตึก A ชั้น ${floor} ห้อง ${room}\n\n`;
-  } else if (selectedDelivery === 'buildingB') {
-    const floor = document.getElementById('buildingB-floor').value;
-    const room = document.getElementById('buildingB-room').value;
-    message += `🏢 ส่งถึง: ตึก B ชั้น ${floor} ห้อง ${room}\n\n`;
-  }
-  
-  message += "📋 รายการ:\n";
-  cart.forEach((item, index) => {
-    message += `${index + 1}. ${item.name}`;
-    if (item.sweetness) {
-      message += ` (${item.sweetness})`;
-    }
-    message += ` x${item.quantity} = ${item.price * item.quantity}.-\n`;
-  });
-  
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  message += `\n💰 ยอดรวม: ${totalPrice} บาท\n`;
-  message += "━━━━━━━━━━━━━━━━━━\n";
-  message += "📎 กรุณาแนบสลิปโอนเงิน\n";
-  message += "(กดปุ่ม + แล้วเลือกรูปสลิป)";
-  
-  const encodedMessage = encodeURIComponent(message);
-  const lineUrl = `https://line.me/R/oaMessage/${LINE_OA_ID}/?${encodedMessage}`;
-  
-  // Open LINE
-  window.location.href = lineUrl;
-}
-
-// === RESET ORDER ===
-function resetOrder() {
-  cart = [];
-  selectedDelivery = null;
-  slipUploaded = false;
-  
-  // Reset form fields
-  document.querySelectorAll('input[name="delivery"]').forEach(radio => radio.checked = false);
-  document.getElementById('buildingA-floor').value = '';
-  document.getElementById('buildingA-room').value = '';
-  document.getElementById('buildingB-floor').value = '';
-  document.getElementById('buildingB-room').value = '';
-  document.getElementById('buildingA-details').classList.add('hidden');
-  document.getElementById('buildingB-details').classList.add('hidden');
-  
-  // Reset delivery option borders
-  document.querySelectorAll('[onclick^="selectDeliveryOption"]').forEach(el => {
-    el.classList.remove('border-orange-500', 'bg-orange-50');
-    el.classList.add('border-transparent');
-  });
-  
-  updateCart();
-  showPage('menu');
-}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
 
 // === INIT ===
 renderMenu();
