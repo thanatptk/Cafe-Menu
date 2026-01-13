@@ -14,18 +14,22 @@
       from { transform: translateX(100%); }
       to { transform: translateX(0); }
     }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes checkmark {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
     .animate-slide-up { animation: slideUp 0.3s ease-out; }
     .animate-slide-right { animation: slideRight 0.3s ease-out; }
+    .animate-pulse-slow { animation: pulse 2s infinite; }
+    .animate-checkmark { animation: checkmark 0.5s ease-out; }
     
-    /* แก้ปัญหาปุ่มกดไม่ได้ */
-    #cart-drawer > div:first-child {
-      pointer-events: auto;
-    }
-    #cart-drawer > div:last-child {
-      pointer-events: auto;
-      position: relative;
-      z-index: 10;
-    }
+    #cart-drawer > div:first-child { pointer-events: auto; }
+    #cart-drawer > div:last-child { pointer-events: auto; position: relative; z-index: 10; }
   </style>
 </head>
 <body class="bg-orange-50">
@@ -45,16 +49,277 @@
   </button>
 </header>
 
-<!-- Main Content -->
-<main class="container mx-auto max-w-2xl px-4 py-6 pb-24">
+<!-- Main Content - Menu Page -->
+<main id="menu-page" class="container mx-auto max-w-2xl px-4 py-6 pb-24">
   <div class="mb-6 text-center">
     <h2 class="text-2xl font-bold text-gray-800 mb-2">เลือกเมนูเครื่องดื่ม</h2>
     <p class="text-gray-500">สดชื่น อร่อย ถูกใจ สั่งเลย!</p>
   </div>
-
-  <!-- Menu Grid -->
   <div id="menu-grid" class="grid grid-cols-2 gap-4"></div>
 </main>
+
+<!-- Checkout Page - Delivery Selection -->
+<div id="checkout-page" class="hidden container mx-auto max-w-2xl px-4 py-6 pb-24">
+  <div class="mb-6">
+    <button onclick="goBackToMenu()" class="flex items-center gap-2 text-gray-600 hover:text-orange-600 mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      กลับไปเลือกเมนู
+    </button>
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">เลือกสถานที่รับสินค้า</h2>
+    <p class="text-gray-500">กรุณาเลือกว่าจะรับสินค้าที่ไหน</p>
+  </div>
+
+  <!-- Order Summary -->
+  <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
+      สรุปรายการสั่งซื้อ
+    </h3>
+    <div id="checkout-items" class="space-y-2 text-sm"></div>
+    <div class="border-t mt-3 pt-3 flex justify-between items-center">
+      <span class="font-bold text-gray-700">ยอดรวมทั้งหมด</span>
+      <span id="checkout-total" class="text-xl font-bold text-orange-600">0.-</span>
+    </div>
+  </div>
+
+  <!-- Delivery Options -->
+  <div class="space-y-4">
+    <!-- Option 1: Building A -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border-2 border-transparent hover:border-orange-200 transition-all cursor-pointer" onclick="selectDeliveryOption('buildingA')">
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="radio" name="delivery" value="buildingA" class="mt-1 w-5 h-5 text-orange-600">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            <span class="font-bold text-gray-800">ตึก A - ส่งถึงห้อง</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">พนักงานจะนำส่งถึงห้องของคุณ</p>
+          <div id="buildingA-details" class="hidden mt-3 space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">ชั้น</label>
+              <select id="buildingA-floor" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
+                <option value="">-- เลือกชั้น --</option>
+                <option value="1">ชั้น 1</option>
+                <option value="2">ชั้น 2</option>
+                <option value="3">ชั้น 3</option>
+                <option value="4">ชั้น 4</option>
+                <option value="5">ชั้น 5</option>
+                <option value="6">ชั้น 6</option>
+                <option value="7">ชั้น 7</option>
+                <option value="8">ชั้น 8</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">เลขห้อง</label>
+              <input type="text" id="buildingA-room" placeholder="เช่น 101, 205" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
+            </div>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <!-- Option 2: Building B -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border-2 border-transparent hover:border-orange-200 transition-all cursor-pointer" onclick="selectDeliveryOption('buildingB')">
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="radio" name="delivery" value="buildingB" class="mt-1 w-5 h-5 text-orange-600">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            <span class="font-bold text-gray-800">ตึก B - ส่งถึงห้อง</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">พนักงานจะนำส่งถึงห้องของคุณ</p>
+          <div id="buildingB-details" class="hidden mt-3 space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">ชั้น</label>
+              <select id="buildingB-floor" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
+                <option value="">-- เลือกชั้น --</option>
+                <option value="1">ชั้น 1</option>
+                <option value="2">ชั้น 2</option>
+                <option value="3">ชั้น 3</option>
+                <option value="4">ชั้น 4</option>
+                <option value="5">ชั้น 5</option>
+                <option value="6">ชั้น 6</option>
+                <option value="7">ชั้น 7</option>
+                <option value="8">ชั้น 8</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">เลขห้อง</label>
+              <input type="text" id="buildingB-room" placeholder="เช่น 101, 205" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" onclick="event.stopPropagation()">
+            </div>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <!-- Option 3: Pickup -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border-2 border-transparent hover:border-orange-200 transition-all cursor-pointer" onclick="selectDeliveryOption('pickup')">
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="radio" name="delivery" value="pickup" class="mt-1 w-5 h-5 text-orange-600">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/><path d="M12 3v6"/></svg>
+            <span class="font-bold text-gray-800">รับที่หน้าร้าน</span>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">ลงมารับด้วยตนเองที่หน้าร้าน</p>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Continue Button -->
+  <button id="continue-to-payment" onclick="goToPayment()" class="w-full mt-6 bg-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-orange-700 active:scale-95 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
+    ดำเนินการชำระเงิน
+  </button>
+</div>
+
+<!-- Payment Page - QR Code -->
+<div id="payment-page" class="hidden container mx-auto max-w-2xl px-4 py-6 pb-24">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">ชำระเงิน</h2>
+    <p class="text-gray-500">สแกน QR Code เพื่อชำระเงิน</p>
+  </div>
+
+  <!-- Timer Warning -->
+  <div id="timer-warning" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+    <div class="flex items-center justify-center gap-2 text-red-600">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="font-bold">QR Code หมดอายุใน</span>
+      <span id="countdown" class="text-2xl font-bold animate-pulse-slow">05:00</span>
+    </div>
+  </div>
+
+  <!-- QR Code Display -->
+  <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
+    <div class="flex flex-col items-center">
+      <!-- QR Code Placeholder - Replace with actual PromptPay QR -->
+      <div id="qr-container" class="bg-gray-100 p-4 rounded-xl mb-4">
+        <div class="w-48 h-48 bg-white flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
+          <!-- This would be replaced with actual QR code image -->
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-400 mb-2"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+            <p class="text-xs text-gray-400">QR PromptPay</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Info -->
+      <div class="text-center mb-4">
+        <p class="text-sm text-gray-500">ยอดชำระ</p>
+        <p id="payment-amount" class="text-3xl font-bold text-orange-600">0.-</p>
+      </div>
+
+      <!-- Bank Info -->
+      <div class="bg-gray-50 rounded-lg p-3 w-full text-center">
+        <p class="text-sm text-gray-600">พร้อมเพย์: <span class="font-bold">0XX-XXX-XXXX</span></p>
+        <p class="text-sm text-gray-600">ชื่อบัญชี: <span class="font-bold">My Cafe</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Slip Section -->
+  <div class="bg-white rounded-xl p-6 shadow-sm">
+    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+      อัพโหลดสลิปการโอนเงิน
+    </h3>
+
+    <!-- Upload Area -->
+    <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-orange-400 transition-colors cursor-pointer" onclick="document.getElementById('slip-input').click()">
+      <input type="file" id="slip-input" accept="image/*" class="hidden" onchange="handleSlipUpload(event)">
+      <div id="upload-placeholder">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-400 mb-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        <p class="text-gray-500">แตะเพื่อเลือกรูปสลิป</p>
+        <p class="text-xs text-gray-400 mt-1">รองรับ JPG, PNG</p>
+      </div>
+      <div id="upload-preview" class="hidden">
+        <img id="slip-preview" class="max-h-40 mx-auto rounded-lg mb-2">
+        <p class="text-green-600 font-medium">✓ อัพโหลดสลิปแล้ว</p>
+      </div>
+    </div>
+
+    <!-- Confirm Button -->
+    <button id="confirm-payment" onclick="confirmPayment()" class="w-full mt-4 bg-green-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-600 active:scale-95 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      ยืนยันการชำระเงิน
+    </button>
+  </div>
+
+  <!-- QR Expired Modal -->
+  <div id="qr-expired-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full relative z-10 text-center animate-slide-up">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">QR Code หมดอายุ</h3>
+      <p class="text-gray-500 mb-6">กรุณากดปุ่มด้านล่างเพื่อสร้าง QR Code ใหม่</p>
+      <button onclick="regenerateQR()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
+        สร้าง QR Code ใหม่
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Thank You Page -->
+<div id="thankyou-page" class="hidden container mx-auto max-w-2xl px-4 py-6 pb-24">
+  <div class="text-center py-12">
+    <!-- Success Animation -->
+    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-checkmark">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">ขอบคุณที่สั่งซื้อ! 🎉</h2>
+    <p class="text-gray-500 mb-8">เราได้รับคำสั่งซื้อของคุณแล้ว</p>
+
+    <!-- Order Status Card -->
+    <div class="bg-white rounded-xl p-6 shadow-lg mb-6 text-left">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+        </div>
+        <div>
+          <p class="font-bold text-gray-800">กำลังเตรียมเครื่องดื่ม</p>
+          <p class="text-sm text-gray-500">รอสักครู่นะคะ...</p>
+        </div>
+      </div>
+
+      <!-- Delivery Info -->
+      <div id="delivery-info" class="bg-gray-50 rounded-lg p-4 mb-4">
+        <p class="text-sm text-gray-600 mb-1">สถานที่รับสินค้า</p>
+        <p id="delivery-location" class="font-bold text-gray-800"></p>
+      </div>
+
+      <!-- Order Items -->
+      <div class="border-t pt-4">
+        <p class="text-sm text-gray-600 mb-2">รายการสั่งซื้อ</p>
+        <div id="thankyou-items" class="space-y-2 text-sm"></div>
+        <div class="border-t mt-3 pt-3 flex justify-between">
+          <span class="font-bold">ยอดรวม</span>
+          <span id="thankyou-total" class="font-bold text-orange-600"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Messages -->
+    <div class="bg-blue-50 rounded-xl p-4 mb-6">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="text-left">
+          <p id="status-message" class="font-medium text-blue-800">พนักงานกำลังเตรียมเครื่องดื่มให้คุณ</p>
+          <p class="text-sm text-blue-600 mt-1">ใช้เวลาประมาณ 5-10 นาที</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <button onclick="resetOrder()" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-orange-700 active:scale-95 transition-all">
+      สั่งเพิ่มอีก
+    </button>
+  </div>
+</div>
 
 <!-- Product Modal -->
 <div id="modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center">
@@ -70,13 +335,11 @@
       </button>
     </div>
 
-    <!-- Sweetness Selection -->
     <div id="sweetness-section" class="mb-6">
       <h4 class="font-semibold text-gray-700 mb-3 text-sm">เลือกระดับความหวาน</h4>
       <div class="space-y-2" id="sweetness-options"></div>
     </div>
 
-    <!-- Quantity -->
     <div class="flex items-center justify-between mb-6 bg-gray-50 p-3 rounded-lg">
       <span class="font-semibold text-gray-700">จำนวน</span>
       <div class="flex items-center gap-4">
@@ -90,7 +353,6 @@
       </div>
     </div>
 
-    <!-- Add Button -->
     <button onclick="addToCart()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-orange-700 active:scale-95 transition-all">
       เพิ่มลงตะกร้า — <span id="modal-total">0</span>.-
     </button>
@@ -113,20 +375,16 @@
 
     <div id="cart-items" class="flex-1 overflow-y-auto p-4"></div>
 
-    <!-- Footer -->
     <div id="cart-footer" class="hidden p-4 border-t bg-gray-50">
       <div class="flex justify-between items-center mb-4">
         <span class="text-gray-600">ยอดรวมทั้งหมด</span>
         <span id="total-price" class="text-2xl font-bold text-orange-600">0.-</span>
       </div>
       
-      <button onclick="sendToLine()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-        ยืนยันออเดอร์ (ส่งทางไลน์)
+      <button onclick="proceedToCheckout()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        ดำเนินการสั่งซื้อ
       </button>
-      <p class="text-xs text-center text-gray-400 mt-2">
-        *ระบบจะเปิดแอป LINE เพื่อส่งรายการให้ทางร้าน
-      </p>
     </div>
   </div>
 </div>
@@ -140,10 +398,11 @@
 </div>
 
 <script>
-// === ตั้งค่า LINE ID ของร้านตรงนี้ ===
-const LINE_OA_ID = '@570uqhbl'; // ⬅️ แก้เป็น LINE OA ID จริงของร้าน (เช่น @abc1234)
+// === CONFIG ===
+const LINE_OA_ID = '@570uqhbl';
+const QR_TIMEOUT = 5 * 60; // 5 minutes in seconds
 
-// === ข้อมูลเมนู ===
+// === MENU DATA ===
 const MENU_ITEMS = [
   { id: 1, name: 'เนสกาแฟ (Nescafe)', price: 29, category: 'Coffee' },
   { id: 2, name: 'กาแฟโบราณ (Thai Coffee Milk)', price: 29, category: 'Coffee' },
@@ -175,12 +434,17 @@ const SWEETNESS_LEVELS = [
   { label: 'ไม่หวาน 0%', value: '0%' },
 ];
 
+// === STATE ===
 let cart = [];
 let selectedItem = null;
 let currentQuantity = 1;
 let currentSweetness = '70%';
+let selectedDelivery = null;
+let countdownInterval = null;
+let remainingTime = QR_TIMEOUT;
+let slipUploaded = false;
 
-// === สร้างเมนู ===
+// === RENDER MENU ===
 function renderMenu() {
   const grid = document.getElementById('menu-grid');
   grid.innerHTML = MENU_ITEMS.map(item => `
@@ -205,7 +469,7 @@ function renderMenu() {
   `).join('');
 }
 
-// === เปิด Modal ===
+// === MODAL FUNCTIONS ===
 function openModal(itemId) {
   selectedItem = MENU_ITEMS.find(item => item.id === itemId);
   currentQuantity = 1;
@@ -216,7 +480,6 @@ function openModal(itemId) {
   document.getElementById('quantity').textContent = currentQuantity;
   document.getElementById('modal-total').textContent = selectedItem.price;
   
-  // แสดง/ซ่อน sweetness
   const sweetnessSection = document.getElementById('sweetness-section');
   if (selectedItem.category === 'Soft Drink') {
     sweetnessSection.style.display = 'none';
@@ -232,7 +495,6 @@ function closeModal() {
   document.getElementById('modal').classList.add('hidden');
 }
 
-// === ตัวเลือกความหวาน ===
 function renderSweetnessOptions() {
   const container = document.getElementById('sweetness-options');
   container.innerHTML = SWEETNESS_LEVELS.map(level => `
@@ -243,14 +505,12 @@ function renderSweetnessOptions() {
   `).join('');
 }
 
-// === เปลี่ยนจำนวน ===
 function changeQuantity(change) {
   currentQuantity = Math.max(1, currentQuantity + change);
   document.getElementById('quantity').textContent = currentQuantity;
   document.getElementById('modal-total').textContent = selectedItem.price * currentQuantity;
 }
 
-// === เพิ่มลงตะกร้า ===
 function addToCart() {
   const newItem = {
     ...selectedItem,
@@ -264,12 +524,11 @@ function addToCart() {
   closeModal();
 }
 
-// === อัพเดทตะกร้า ===
+// === CART FUNCTIONS ===
 function updateCart() {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
-  // Badge
   const badge = document.getElementById('cart-badge');
   const floatingBadge = document.getElementById('floating-badge');
   if (totalItems > 0) {
@@ -282,7 +541,6 @@ function updateCart() {
     document.getElementById('floating-cart').classList.add('hidden');
   }
   
-  // Render cart items
   const container = document.getElementById('cart-items');
   if (cart.length === 0) {
     container.innerHTML = `
@@ -319,44 +577,302 @@ function updateCart() {
   }
 }
 
-// === ลบจากตะกร้า ===
 function removeFromCart(cartId) {
   cart = cart.filter(item => item.cartId !== cartId);
   updateCart();
 }
 
-// === เปิด/ปิดตะกร้า ===
 function toggleCart() {
   const drawer = document.getElementById('cart-drawer');
   drawer.classList.toggle('hidden');
 }
 
-// === ส่งไป LINE ===
-function sendToLine() {
+// === PAGE NAVIGATION ===
+function showPage(pageName) {
+  document.getElementById('menu-page').classList.add('hidden');
+  document.getElementById('checkout-page').classList.add('hidden');
+  document.getElementById('payment-page').classList.add('hidden');
+  document.getElementById('thankyou-page').classList.add('hidden');
+  
+  document.getElementById(`${pageName}-page`).classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function proceedToCheckout() {
   if (cart.length === 0) return;
   
-  let message = "🛒 ขอสั่งเครื่องดื่มครับ/ค่ะ \n\n";
+  toggleCart();
+  renderCheckoutSummary();
+  showPage('checkout');
+}
+
+function goBackToMenu() {
+  showPage('menu');
+}
+
+// === CHECKOUT FUNCTIONS ===
+function renderCheckoutSummary() {
+  const container = document.getElementById('checkout-items');
+  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
+  container.innerHTML = cart.map(item => `
+    <div class="flex justify-between items-center">
+      <span class="text-gray-700">${item.name} ${item.sweetness ? `(${item.sweetness})` : ''} x${item.quantity}</span>
+      <span class="font-medium">${item.price * item.quantity}.-</span>
+    </div>
+  `).join('');
+  
+  document.getElementById('checkout-total').textContent = `${totalPrice}.-`;
+}
+
+function selectDeliveryOption(option) {
+  selectedDelivery = option;
+  
+  // Update radio buttons
+  document.querySelectorAll('input[name="delivery"]').forEach(radio => {
+    radio.checked = radio.value === option;
+  });
+  
+  // Update border styles
+  document.querySelectorAll('[onclick^="selectDeliveryOption"]').forEach(el => {
+    el.classList.remove('border-orange-500', 'bg-orange-50');
+    el.classList.add('border-transparent');
+  });
+  event.currentTarget.classList.remove('border-transparent');
+  event.currentTarget.classList.add('border-orange-500', 'bg-orange-50');
+  
+  // Show/hide detail forms
+  document.getElementById('buildingA-details').classList.add('hidden');
+  document.getElementById('buildingB-details').classList.add('hidden');
+  
+  if (option === 'buildingA') {
+    document.getElementById('buildingA-details').classList.remove('hidden');
+  } else if (option === 'buildingB') {
+    document.getElementById('buildingB-details').classList.remove('hidden');
+  }
+  
+  validateDeliveryForm();
+}
+
+function validateDeliveryForm() {
+  const btn = document.getElementById('continue-to-payment');
+  let isValid = false;
+  
+  if (selectedDelivery === 'pickup') {
+    isValid = true;
+  } else if (selectedDelivery === 'buildingA') {
+    const floor = document.getElementById('buildingA-floor').value;
+    const room = document.getElementById('buildingA-room').value;
+    isValid = floor && room;
+  } else if (selectedDelivery === 'buildingB') {
+    const floor = document.getElementById('buildingB-floor').value;
+    const room = document.getElementById('buildingB-room').value;
+    isValid = floor && room;
+  }
+  
+  btn.disabled = !isValid;
+}
+
+// Add event listeners for form validation
+document.getElementById('buildingA-floor').addEventListener('change', validateDeliveryForm);
+document.getElementById('buildingA-room').addEventListener('input', validateDeliveryForm);
+document.getElementById('buildingB-floor').addEventListener('change', validateDeliveryForm);
+document.getElementById('buildingB-room').addEventListener('input', validateDeliveryForm);
+
+// === PAYMENT PAGE ===
+function goToPayment() {
+  if (!selectedDelivery) return;
+  
+  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  document.getElementById('payment-amount').textContent = `${totalPrice}.-`;
+  
+  // Reset payment state
+  slipUploaded = false;
+  document.getElementById('confirm-payment').disabled = true;
+  document.getElementById('upload-placeholder').classList.remove('hidden');
+  document.getElementById('upload-preview').classList.add('hidden');
+  
+  // Start countdown
+  startCountdown();
+  
+  showPage('payment');
+}
+
+function startCountdown() {
+  remainingTime = QR_TIMEOUT;
+  updateCountdownDisplay();
+  
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  
+  countdownInterval = setInterval(() => {
+    remainingTime--;
+    updateCountdownDisplay();
+    
+    if (remainingTime <= 0) {
+      clearInterval(countdownInterval);
+      showQRExpiredModal();
+    }
+  }, 1000);
+}
+
+function updateCountdownDisplay() {
+  const minutes = Math.floor(remainingTime / 60);
+  const seconds = remainingTime % 60;
+  const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  document.getElementById('countdown').textContent = display;
+  
+  // Change color when low
+  const timerWarning = document.getElementById('timer-warning');
+  if (remainingTime <= 60) {
+    timerWarning.classList.remove('bg-red-50', 'border-red-200');
+    timerWarning.classList.add('bg-red-100', 'border-red-300');
+    document.getElementById('countdown').classList.add('text-red-700');
+  } else {
+    timerWarning.classList.remove('bg-red-100', 'border-red-300');
+    timerWarning.classList.add('bg-red-50', 'border-red-200');
+    document.getElementById('countdown').classList.remove('text-red-700');
+  }
+}
+
+function showQRExpiredModal() {
+  document.getElementById('qr-expired-modal').classList.remove('hidden');
+}
+
+function regenerateQR() {
+  document.getElementById('qr-expired-modal').classList.add('hidden');
+  startCountdown();
+}
+
+// === SLIP UPLOAD ===
+function handleSlipUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('slip-preview').src = e.target.result;
+    document.getElementById('upload-placeholder').classList.add('hidden');
+    document.getElementById('upload-preview').classList.remove('hidden');
+    slipUploaded = true;
+    document.getElementById('confirm-payment').disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+// === CONFIRM PAYMENT ===
+function confirmPayment() {
+  if (!slipUploaded) return;
+  
+  // Stop countdown
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  
+  // Prepare thank you page
+  prepareThankYouPage();
+  
+  // Send order to LINE (optional - in background)
+  sendOrderToLine();
+  
+  showPage('thankyou');
+}
+
+function prepareThankYouPage() {
+  // Set delivery location text
+  let locationText = '';
+  if (selectedDelivery === 'pickup') {
+    locationText = '📍 รับที่หน้าร้าน';
+    document.getElementById('status-message').textContent = 'รอสักครู่ เครื่องดื่มกำลังเตรียมให้คุณ';
+  } else if (selectedDelivery === 'buildingA') {
+    const floor = document.getElementById('buildingA-floor').value;
+    const room = document.getElementById('buildingA-room').value;
+    locationText = `🏢 ตึก A ชั้น ${floor} ห้อง ${room}`;
+    document.getElementById('status-message').textContent = 'พนักงานกำลังเตรียมเครื่องดื่ม และจะนำส่งถึงห้องของคุณ';
+  } else if (selectedDelivery === 'buildingB') {
+    const floor = document.getElementById('buildingB-floor').value;
+    const room = document.getElementById('buildingB-room').value;
+    locationText = `🏢 ตึก B ชั้น ${floor} ห้อง ${room}`;
+    document.getElementById('status-message').textContent = 'พนักงานกำลังเตรียมเครื่องดื่ม และจะนำส่งถึงห้องของคุณ';
+  }
+  document.getElementById('delivery-location').textContent = locationText;
+  
+  // Render order items
+  const container = document.getElementById('thankyou-items');
+  container.innerHTML = cart.map(item => `
+    <div class="flex justify-between">
+      <span class="text-gray-600">${item.name} ${item.sweetness ? `(${item.sweetness})` : ''} x${item.quantity}</span>
+      <span class="font-medium">${item.price * item.quantity}.-</span>
+    </div>
+  `).join('');
+  
+  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  document.getElementById('thankyou-total').textContent = `${totalPrice}.-`;
+}
+
+function sendOrderToLine() {
+  let message = "🛒 ออเดอร์ใหม่! (ชำระเงินแล้ว)\n\n";
+  
+  // Delivery info
+  if (selectedDelivery === 'pickup') {
+    message += "📍 รับที่หน้าร้าน\n\n";
+  } else if (selectedDelivery === 'buildingA') {
+    const floor = document.getElementById('buildingA-floor').value;
+    const room = document.getElementById('buildingA-room').value;
+    message += `🏢 ส่งถึง: ตึก A ชั้น ${floor} ห้อง ${room}\n\n`;
+  } else if (selectedDelivery === 'buildingB') {
+    const floor = document.getElementById('buildingB-floor').value;
+    const room = document.getElementById('buildingB-room').value;
+    message += `🏢 ส่งถึง: ตึก B ชั้น ${floor} ห้อง ${room}\n\n`;
+  }
+  
+  message += "รายการสั่งซื้อ:\n";
   cart.forEach((item, index) => {
     message += `${index + 1}. ${item.name}`;
     if (item.sweetness) {
       message += ` (หวาน ${item.sweetness})`;
     }
-    message += `\n   x ${item.quantity} = ${item.price * item.quantity} บาท\n`;
+    message += ` x${item.quantity} = ${item.price * item.quantity} บาท\n`;
   });
   
   const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  message += `\n💰 ยอดรวมทั้งหมด: ${totalPrice} บาท`;
-  message += `\n\n----------------------------`;
-  message += `\n(รบกวนแจ้งเบอร์โทร หรือที่อยู่จัดส่งต่อได้เลยครับ)`;
+  message += `\n💰 ยอดรวม: ${totalPrice} บาท`;
+  message += `\n✅ สถานะ: ชำระเงินแล้ว`;
   
   const encodedMessage = encodeURIComponent(message);
   const lineUrl = `https://line.me/R/oaMessage/${LINE_OA_ID}/?${encodedMessage}`;
   
-  window.location.href = lineUrl;
+  // Open LINE in new tab (or could use fetch to send to backend)
+  window.open(lineUrl, '_blank');
 }
 
-// เริ่มต้น
+// === RESET ORDER ===
+function resetOrder() {
+  cart = [];
+  selectedDelivery = null;
+  slipUploaded = false;
+  
+  // Reset form fields
+  document.querySelectorAll('input[name="delivery"]').forEach(radio => radio.checked = false);
+  document.getElementById('buildingA-floor').value = '';
+  document.getElementById('buildingA-room').value = '';
+  document.getElementById('buildingB-floor').value = '';
+  document.getElementById('buildingB-room').value = '';
+  document.getElementById('buildingA-details').classList.add('hidden');
+  document.getElementById('buildingB-details').classList.add('hidden');
+  
+  // Reset delivery option borders
+  document.querySelectorAll('[onclick^="selectDeliveryOption"]').forEach(el => {
+    el.classList.remove('border-orange-500', 'bg-orange-50');
+    el.classList.add('border-transparent');
+  });
+  
+  updateCart();
+  showPage('menu');
+}
+
+// === INIT ===
 renderMenu();
 </script>
 
