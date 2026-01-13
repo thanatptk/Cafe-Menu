@@ -11,8 +11,9 @@
       to { transform: translateY(0); opacity: 1; }
     }
     .animate-slide-up { animation: slideUp 0.3s ease-out; }
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    /* ลบ scrollbar-hide ออกเพื่อให้เห็นว่าเลื่อนได้ (ถ้าต้องการซ่อนให้ uncomment บรรทัดล่างนี้) */
+    /* .scrollbar-hide::-webkit-scrollbar { display: none; } */
+    /* .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; } */
   </style>
 </head>
 <body class="bg-orange-50 min-h-screen">
@@ -31,12 +32,12 @@
 <main class="container mx-auto max-w-2xl px-4 py-6 pb-12">
   <div class="mb-4 text-center">
     <h2 class="text-2xl font-bold text-gray-800 mb-1">เมนูอาหาร</h2>
-    <p class="text-gray-500 text-sm">กดที่เมนูเพื่อดูรูปภาพ</p>
+    <p class="text-gray-500 text-sm">เลือกเมนูที่ถูกใจได้เลยครับ</p>
     <p class="text-orange-600 text-xs mt-1">⏰ เปิดบริการทุกวัน 10.00 - 21.00 น.</p>
   </div>
-  
-  <!-- Category Filter -->
-  <div class="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+   
+  <!-- Category Filter (ลบ scrollbar-hide ออกเพื่อให้เห็นแถบเลื่อน) -->
+  <div class="flex gap-2 overflow-x-auto pb-4 mb-4">
     <button onclick="filterCategory('all')" class="category-btn active px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-orange-500 text-white" data-category="all">🍽️ ทั้งหมด</button>
     <button onclick="filterCategory('drink')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="drink">🥤 เครื่องดื่ม</button>
     <button onclick="filterCategory('rice')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="rice">🍚 ข้าวราด</button>
@@ -47,12 +48,12 @@
     <button onclick="filterCategory('yum')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="yum">🥢 ยำ</button>
     <button onclick="filterCategory('snack')" class="category-btn px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap bg-white text-gray-600 border" data-category="snack">🍗 ทานเล่น</button>
   </div>
-  
+   
   <!-- Menu Count -->
   <div class="mb-4 text-center">
     <span id="menu-count" class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full">แสดง 95 รายการ</span>
   </div>
-  
+   
   <div id="menu-grid" class="grid grid-cols-2 gap-3"></div>
 </main>
 
@@ -73,24 +74,24 @@
 
     <!-- Image Display Area -->
     <div class="bg-gray-100 rounded-xl p-4 mb-4">
-      <div id="modal-image" class="aspect-square w-full bg-white rounded-lg flex items-center justify-center overflow-hidden">
-        <div class="text-center text-gray-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
-          <p class="text-sm">รูปสินค้า</p>
-        </div>
+      <div id="modal-image-container" class="aspect-square w-full bg-white rounded-lg flex items-center justify-center overflow-hidden relative">
+         <img id="modal-img-tag" src="" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+         <!-- Fallback content if image fails -->
+         <div class="hidden absolute inset-0 flex-col items-center justify-center text-gray-400 bg-gray-50 w-full h-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
+            <p class="text-sm">รูปสินค้า</p>
+         </div>
       </div>
     </div>
 
-    <!-- Image Link -->
-    <div id="image-link-section" class="bg-blue-50 rounded-xl p-4">
-      <p class="text-sm text-gray-600 mb-2">🔗 ลิงก์รูปภาพ:</p>
-      <a id="image-link" href="#" target="_blank" class="text-blue-600 hover:text-blue-800 underline break-all text-sm">
+    <!-- Action Section -->
+    <div class="mt-4 pb-2 border-t pt-4">
+      <h3 class="text-center text-lg font-bold text-gray-800 mb-3">สั่งเลยตอนนี้ 👇</h3>
+      <a href="#" target="_blank" class="block w-full bg-green-500 text-white py-3.5 rounded-xl font-bold text-lg hover:bg-green-600 transition-colors shadow-lg shadow-green-200 flex items-center justify-center gap-2 transform active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.2-9.91 9.42 0 4.67 3.63 8.6 8.5 9.3-.25.85-.75 2.5-2.2 3.3 0 0 2.9.27 5.75-2.1l.66.04c5.46 0 9.91-4.2 9.91-9.42C24.75 7.15 19.05 2 12.04 2z"/></svg>
+        แชทหาเรา
       </a>
-      <button onclick="copyImageLink()" class="mt-3 w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-        คัดลอกลิงก์
-      </button>
-      <p id="copy-success" class="hidden text-center text-green-600 text-sm mt-2">✓ คัดลอกแล้ว!</p>
+      <p class="text-center text-xs text-gray-400 mt-3">กดปุ่มเพื่อกลับไปหน้าแชทและสั่งอาหาร</p>
     </div>
   </div>
 </div>
@@ -242,18 +243,26 @@ function renderMenu() {
   const filteredItems = currentCategory === 'all' 
     ? MENU_ITEMS 
     : MENU_ITEMS.filter(item => item.category === currentCategory);
-  
+   
   // Update count
   document.getElementById('menu-count').textContent = `แสดง ${filteredItems.length} รายการ`;
-  
+   
   grid.innerHTML = filteredItems.map(item => `
     <div onclick="openModal(${item.id})" class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all hover:scale-[1.02] overflow-hidden cursor-pointer border border-gray-100 flex flex-col">
-      <div class="aspect-[4/3] bg-gradient-to-br from-orange-100 to-orange-50 w-full flex items-center justify-center text-orange-300 relative">
-        <div class="text-center">
+      <div class="aspect-[4/3] w-full bg-orange-50 relative overflow-hidden">
+        <!-- Image with fallback -->
+        <img src="${item.imageUrl}" 
+             alt="${item.name}" 
+             class="w-full h-full object-cover" 
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+        
+        <!-- Fallback if image fails or empty -->
+        <div class="hidden absolute inset-0 flex-col items-center justify-center text-orange-300 bg-orange-50 w-full h-full">
           <span class="text-3xl">${CATEGORY_ICONS[item.category]}</span>
-          <p class="text-xs text-orange-400 mt-1">กดดูรูป</p>
+          <p class="text-xs text-orange-400 mt-1">รูปสินค้า</p>
         </div>
-        ${item.name.includes('⭐') ? '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">แนะนำ</span>' : ''}
+
+        ${item.name.includes('⭐') ? '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold z-10 shadow-sm">แนะนำ</span>' : ''}
       </div>
       <div class="p-3 flex flex-col flex-grow">
         <h3 class="font-semibold text-gray-800 line-clamp-2 mb-1 leading-snug text-sm">${item.name}</h3>
@@ -269,7 +278,7 @@ function renderMenu() {
 // === FILTER CATEGORY ===
 function filterCategory(category) {
   currentCategory = category;
-  
+   
   document.querySelectorAll('.category-btn').forEach(btn => {
     if (btn.dataset.category === category) {
       btn.classList.remove('bg-white', 'text-gray-600', 'border');
@@ -279,21 +288,30 @@ function filterCategory(category) {
       btn.classList.add('bg-white', 'text-gray-600', 'border');
     }
   });
-  
+   
   renderMenu();
 }
 
 // === MODAL FUNCTIONS ===
 function openModal(itemId) {
   selectedItem = MENU_ITEMS.find(item => item.id === itemId);
-  
+   
   document.getElementById('modal-name').textContent = selectedItem.name;
   document.getElementById('modal-price').textContent = `${selectedItem.price} บาท`;
   document.getElementById('modal-category').textContent = CATEGORY_NAMES[selectedItem.category];
-  document.getElementById('image-link').href = selectedItem.imageUrl;
-  document.getElementById('image-link').textContent = selectedItem.imageUrl;
-  document.getElementById('copy-success').classList.add('hidden');
   
+  // Update Modal Image Logic
+  const imgTag = document.getElementById('modal-img-tag');
+  const fallbackDiv = imgTag.nextElementSibling;
+  
+  // Reset previous state
+  imgTag.style.display = 'block';
+  fallbackDiv.style.display = 'none';
+  
+  imgTag.src = selectedItem.imageUrl;
+  
+  // Note: onerror is inline in HTML, it will handle the switch if src is bad
+   
   document.getElementById('modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
@@ -301,29 +319,6 @@ function openModal(itemId) {
 function closeModal() {
   document.getElementById('modal').classList.add('hidden');
   document.body.style.overflow = '';
-}
-
-function copyImageLink() {
-  if (!selectedItem) return;
-  
-  navigator.clipboard.writeText(selectedItem.imageUrl).then(() => {
-    document.getElementById('copy-success').classList.remove('hidden');
-    setTimeout(() => {
-      document.getElementById('copy-success').classList.add('hidden');
-    }, 2000);
-  }).catch(() => {
-    const textArea = document.createElement('textarea');
-    textArea.value = selectedItem.imageUrl;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    
-    document.getElementById('copy-success').classList.remove('hidden');
-    setTimeout(() => {
-      document.getElementById('copy-success').classList.add('hidden');
-    }, 2000);
-  });
 }
 
 document.addEventListener('keydown', (e) => {
